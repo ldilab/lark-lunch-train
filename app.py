@@ -14,6 +14,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from flask_apscheduler import APScheduler
 
 from src.train import Train, Running, Passenger
+from src.utils.event import EventManager
 
 app = Flask(__name__)
 scheduler = APScheduler()
@@ -26,18 +27,16 @@ GROUP_ID = os.environ.get("GROUP_ID")
 running = []
 jobs = []
 
+VERIFICATION_TOKEN = os.getenv("VERIFICATION_TOKEN")
+ENCRYPT_KEY = os.getenv("ENCRYPT_KEY")
+event_manager = EventManager()
+
 
 @app.route("/", methods=['POST'])
 def main():
-    challenge = request.json
-    app.logger.error("hi")
-    for k, v in challenge.items():
-        app.logger.error(f"{k}: {v}")
+    event_handler, event = event_manager.get_handler_with_event(VERIFICATION_TOKEN, ENCRYPT_KEY)
 
-    if challenge:
-        return challenge.get('encrypt')
-    else:
-        return "Hello World"
+    return event_handler(event)
 
 
 @app.route("/train", methods=['GET', 'POST'])
