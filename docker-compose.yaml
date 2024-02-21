@@ -10,5 +10,7 @@ services:
 
     ports:
       - 18000:5000
+    volumes:
+      - .:/app
 
 
