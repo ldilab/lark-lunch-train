@@ -1,3 +1,4 @@
+import ast
 import json
 import os
 import time
@@ -71,8 +72,9 @@ def main():
     encrypt_target = dict_data.get("encrypt")
     cipher = AESCipher(ENCRYPT_KEY)
     challenge = cipher.decrypt_string(encrypt_target)
+    response = ast.literal_eval(challenge)
 
-    return jsonify({"challenge": challenge})
+    return jsonify(response)
     # return event_handler(event)
 
 
