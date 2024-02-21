@@ -30,7 +30,11 @@ jobs = []
 @app.route("/", methods=['POST'])
 def main():
     challenge = request.args.get('CHALLENGE')
-    return challenge
+    print(request.json)
+    if challenge:
+        return challenge
+    else:
+        return "Hello World"
 
 
 @app.route("/train", methods=['GET', 'POST'])
