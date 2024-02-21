@@ -30,7 +30,7 @@ jobs = []
 @app.route("/", methods=['POST'])
 def main():
     challenge = request.args.get('CHALLENGE')
-    print(request.json)
+    app.logger.info('%s logged in successfully', request.json())
     if challenge:
         return challenge
     else:
