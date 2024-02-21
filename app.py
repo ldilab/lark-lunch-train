@@ -35,7 +35,7 @@ def main():
         app.logger.error(f"{k}: {v}")
 
     if challenge:
-        return jsonify(challenge)
+        return challenge.get('encrypt')
     else:
         return "Hello World"
 
