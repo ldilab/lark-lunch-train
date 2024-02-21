@@ -16,6 +16,7 @@ from flask_apscheduler import APScheduler
 
 from src.train import Train, Running, Passenger
 from src.utils.api import MessageApiClient
+from src.utils.decrypt import AESCipher
 from src.utils.event import EventManager, UrlVerificationEvent, MessageReceiveEvent
 
 app = Flask(__name__)
@@ -67,10 +68,11 @@ def message_receive_event_handler(req_data: MessageReceiveEvent):
 @app.route("/", methods=['POST'])
 def main():
     dict_data = json.loads(request.data)
-    for k, v in dict_data.items():
-        app.logger.error(f"AAAA {k}: {v}")
-    # event_handler, event = event_manager.get_handler_with_event(VERIFICATION_TOKEN, ENCRYPT_KEY)
-    return ""
+    encrypt_target = dict_data.get("encrypt")
+    cipher = AESCipher(ENCRYPT_KEY)
+    challenge = cipher.decrypt_string(encrypt_target)
+
+    return jsonify({"challenge": challenge})
     # return event_handler(event)
 
 
