@@ -29,7 +29,7 @@ jobs = []
 
 @app.route("/", methods=['POST'])
 def main():
-    challenge = request.json()
+    challenge = request.json
 
     if challenge:
         return jsonify(challenge)
