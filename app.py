@@ -6,7 +6,7 @@ from os.path import join, dirname
 import flask
 import requests
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, jsonify
 from flask import request
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -32,7 +32,7 @@ def main():
     challenge = request.json()
 
     if challenge:
-        return challenge
+        return jsonify(challenge)
     else:
         return "Hello World"
 
