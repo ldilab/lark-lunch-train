@@ -5,7 +5,8 @@ import hashlib
 import typing as t
 
 from flask import request, jsonify
-from decrypt import AESCipher
+
+from src.utils.decrypt import AESCipher
 from src.utils.utils import dict_2_obj
 
 
