@@ -30,6 +30,8 @@ jobs = []
 @app.route("/", methods=['POST'])
 def main():
     challenge = request.json
+    for k, v in challenge.items():
+        app.logger.error(f"{k}: {v}")
 
     if challenge:
         return jsonify(challenge)
