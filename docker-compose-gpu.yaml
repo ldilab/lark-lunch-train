@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  flask:
+    privileged: true
+    pid: host
+    build:
+      context: ./
+      dockerfile: Dockerfile-gpu
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities:
+                - gpu
+                - utility
+                - compute
+    ipc: host
+    restart: always
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=utility,compute
+    ports:
+      - 8098:5000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/hosts:/etc/hosts:ro
+      - /:/host:ro,rslave
+
