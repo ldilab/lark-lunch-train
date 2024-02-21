@@ -2,7 +2,7 @@
 import hashlib
 import base64
 
-from crypto.Cipher import AES
+from Crypto.Cipher import AES
 
 
 class AESCipher(object):
