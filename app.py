@@ -1,5 +1,6 @@
 import os
 import time
+from datetime import datetime, timedelta
 from os.path import join, dirname
 
 import flask
@@ -19,52 +20,55 @@ auth = HTTPBasicAuth()
 
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
+GROUP_ID = os.environ.get("GROUP_ID")
 
-lunch_train = Train('11:30', '11:50', '14:00', 'lunch')
-dinner_train = Train('17:00', '17:20', '20:00', 'dinner')
-running = Running(lunch_train)
-
-
-@scheduler.task('cron', id='poll_lunch_train',
-                hour=lunch_train.poll_time.hour,
-                minute=lunch_train.poll_time.minute)
-def poll_lunch_train():
-    lunch_train.onboarding_notification()
+running = []
+jobs = []
 
 
-@scheduler.task('cron', id='remind_lunch_train',
-                hour=lunch_train.poll_time.hour,
-                minute=lunch_train.poll_time.minute)
-def poll_lunch_train():
-    lunch_train.onboarding_notification()
+@app.route("/train", methods=['GET', 'POST'])
+def issue_train(request):
+    if len(running) > 5:
+        return "Too many trains running", 400
 
-@scheduler.task('cron', id='launch_lunch_train',
-                hour=lunch_train.launch_time.hour,
-                minute=lunch_train.launch_time.minute)
-def launch_lunch_train():
-    lunch_train.launch_notification()
+    launch_time_dt = datetime.strptime(request.json['launch_time'], '%H:%M')
+    poll_time_dt = datetime.now() + timedelta(minutes=1)
+    reminder_time_dt = launch_time_dt - timedelta(minutes=5)
+    clear_time_dt = launch_time_dt + timedelta(minutes=30)
 
+    launch_time = launch_time_dt.strftime('%H:%M')
+    poll_time = poll_time_dt.strftime('%H:%M')
+    reminder_time = reminder_time_dt.strftime('%H:%M')
+    clear_time = clear_time_dt.strftime('%H:%M')
 
-@scheduler.task('cron', id='clear_lunch_train',
-                hour=lunch_train.clear_time.hour,
-                minute=lunch_train.clear_time.minute)
-def clear_lunch_train():
-    lunch_train.clear_train()
-    running.train = dinner_train
-
-
-
-
-@app.route("/poll", methods=['GET', 'POST'])
-def issue_poll(request):
-    launch_time = time.strptime(request.json['launch_time'], '%H:%M')
     destination = request.json['destination']
-    clear_time = launch_time + 30
 
-    running.train.launch_time = launch_time
-    running.train.clear_time = clear_time
-    running.train.destination = destination
-    running.train.onboarding_notification()
+    train = Train(launch_time, poll_time, reminder_time, clear_time, GROUP_ID, destination)
+    running.append(train)
+    job = scheduler.add_job(
+        id=f"{len(running)}_poll_start",
+        func=train.onboarding_notification,
+        trigger='cron',
+        hour=poll_time_dt.hour,
+        minute=poll_time_dt.minute,
+    )
+
+    scheduler.add_job(
+        id=f"{len(running)}_reminder",
+        func=train.reminder_notification,
+        trigger='cron',
+        hour=reminder_time_dt.hour,
+        minute=reminder_time_dt.minute,
+    )
+    scheduler.add_job(
+        id=f"{len(running)}_clear",
+        func=train.clear_train,
+        trigger='cron',
+        hour=clear_time_dt.hour,
+        minute=clear_time_dt.minute,
+    )
+
+
 
 
 @app.route("/passenger", methods=['GET', 'POST', 'DELETE'])
@@ -74,8 +78,6 @@ def update_passenger(request):
         running.train.update_passenger(Passenger(user_id))
     elif request.method == 'DELETE':
         running.train.remove_passenger(Passenger(user_id))
-    else:
-        return json
 
 
 scheduler.init_app(app)

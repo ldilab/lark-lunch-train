@@ -11,9 +11,10 @@ class Passenger:
 
 
 class Train:
-    def __init__(self, poll_time: str, launch_time: str, clear_time: str, train_id: str, destination: str) -> None:
+    def __init__(self, poll_time: str, launch_time: str, reminder_time: str, clear_time: str, train_id: str, destination: str) -> None:
         self.poll_time: time = datetime.datetime.strptime(poll_time, '%H:%M').time()
         self.launch_time: time = datetime.datetime.strptime(launch_time, '%H:%M').time()
+        self.reminder_time: time = datetime.datetime.strptime(reminder_time, '%H:%M').time()
         self.clear_time: time = datetime.datetime.strptime(clear_time, '%H:%M').time()
         self.train_id: str = train_id
         self.passengers: List[Passenger] = []
