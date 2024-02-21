@@ -27,7 +27,7 @@ jobs = []
 
 
 @app.route("/", methods=['POST'])
-def main(request):
+def main():
     challenge = request.args.get('CHALLENGE')
     return challenge
 
