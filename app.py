@@ -26,6 +26,12 @@ running = []
 jobs = []
 
 
+@app.route("/")
+def main(request):
+    challenge = request.args.get('CHALLENGE')
+    return challenge
+
+
 @app.route("/train", methods=['GET', 'POST'])
 def issue_train(request):
     if len(running) > 5:
@@ -67,8 +73,6 @@ def issue_train(request):
         hour=clear_time_dt.hour,
         minute=clear_time_dt.minute,
     )
-
-
 
 
 @app.route("/passenger", methods=['GET', 'POST', 'DELETE'])
