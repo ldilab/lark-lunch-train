@@ -7,6 +7,7 @@ import flask
 import requests
 from dotenv import load_dotenv
 from flask import Flask
+from flask import request
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -33,7 +34,7 @@ def main():
 
 
 @app.route("/train", methods=['GET', 'POST'])
-def issue_train(request):
+def issue_train():
     if len(running) > 5:
         return "Too many trains running", 400
 
@@ -76,7 +77,7 @@ def issue_train(request):
 
 
 @app.route("/passenger", methods=['GET', 'POST', 'DELETE'])
-def update_passenger(request):
+def update_passenger():
     user_id = request.json['user_id']
     if request.method == 'POST':
         running.train.update_passenger(Passenger(user_id))
