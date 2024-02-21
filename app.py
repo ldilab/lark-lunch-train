@@ -1,3 +1,4 @@
+import json
 import os
 import time
 from datetime import datetime, timedelta
@@ -65,9 +66,12 @@ def message_receive_event_handler(req_data: MessageReceiveEvent):
 
 @app.route("/", methods=['POST'])
 def main():
-    event_handler, event = event_manager.get_handler_with_event(VERIFICATION_TOKEN, ENCRYPT_KEY)
-
-    return event_handler(event)
+    dict_data = json.loads(request.data)
+    for k, v in dict_data.items():
+        app.logger.error(f"AAAA {k}: {v}")
+    # event_handler, event = event_manager.get_handler_with_event(VERIFICATION_TOKEN, ENCRYPT_KEY)
+    return ""
+    # return event_handler(event)
 
 
 @app.route("/train", methods=['GET', 'POST'])
