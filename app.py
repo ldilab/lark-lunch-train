@@ -31,7 +31,7 @@ jobs = []
 def main():
     challenge = request.args.get('CHALLENGE')
     for k, v in request.json.items():
-        app.logger.debug(f"{k}: {v}")
+        app.logger.error(f"{k}: {v}")
 
     if challenge:
         return challenge
