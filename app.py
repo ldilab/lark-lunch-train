@@ -30,6 +30,7 @@ jobs = []
 @app.route("/", methods=['POST'])
 def main():
     challenge = request.json
+    app.logger.error("hi")
     for k, v in challenge.items():
         app.logger.error(f"{k}: {v}")
 
