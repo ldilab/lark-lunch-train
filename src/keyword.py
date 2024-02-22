@@ -12,19 +12,19 @@ def detect(s: str) -> Union[None, str, tuple[str, str]]:
     eh_index = s.index("에")
     es_index = s.index("에서")
     if eh_index > es_index:
-        # XXX에서 YYY에
+        # XXX에서 YYY에 ZZZ
         place = s.split("에서")[0].strip()
         time = s.split("에서")[1].split("에")[0].strip()
     else:
-        # YYY에 XXX에서
+        # YYY에 XXX에서 ZZZ
         time = s.split("에")[0].strip()
         place = s.split("에")[1].split("에서")[0].strip()
 
     # if time is not in form of HH:MM
     if len(time.split(":")) != 2:
-        return "Invalid time format. Please use HH:MM."
+        return "Invalid time format. length Please use HH:MM."
 
     if not time.split(":")[0].isdigit() or not time.split(":")[1].isdigit():
-        return "Invalid time format. Please use HH:MM."
+        return "Invalid time format. digit Please use HH:MM."
 
     return place, time
