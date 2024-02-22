@@ -49,12 +49,8 @@ def main():
     challenge = cipher.decrypt_string(encrypt_target)
     response = ast.literal_eval(challenge)
     event = response.get("event", {})
-    content_str = event.get("content", "")
-    for k, v in response.items():
-        app.logger.error(f"R {k}: {v}")
-
-    for k, v in event.items():
-        app.logger.error(f"E {k}: {v}")
+    message = event.get("message", {})
+    content_str = message.get("content", "")
 
     if content_str:
         app.logger.error("content_str")
