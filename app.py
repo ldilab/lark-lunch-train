@@ -48,9 +48,9 @@ def main():
     cipher = AESCipher(ENCRYPT_KEY)
     challenge = cipher.decrypt_string(encrypt_target)
     response = ast.literal_eval(challenge)
-    content_str = response.get("content", "")
-    for k, v in response.items():
-        app.logger.error(f"{k}: {v}")
+    event = response.get("event", {})
+    content_str = event.get("content", "")
+
     if content_str:
         app.logger.error("content_str")
         content_dict = ast.literal_eval(content_str)
