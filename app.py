@@ -55,7 +55,7 @@ def main():
         keyword = detect(content_dict["text"])
         if keyword:
             _place, _time = keyword
-            app.logger.info(f"Place: {_place}, Time: {_time}")
+            app.logger.error(f"Place: {_place}, Time: {_time}")
             issue_train(_place, _time)
 
 
