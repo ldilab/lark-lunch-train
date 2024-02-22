@@ -51,15 +51,18 @@ def main():
     event = response.get("event", {})
     message = event.get("message", {})
     content_str = message.get("content", "")
+    app.logger.error(content_str)
 
     if content_str:
         app.logger.error("content_str")
         content_dict = ast.literal_eval(content_str)
+        for k, v in content_dict.items():
+            app.logger.error(f"{k}: {v}")
         keyword = detect(content_dict["text"])
         if keyword:
             _place, _time = keyword
             app.logger.error(f"Place: {_place}, Time: {_time}")
-            issue_train(_place, _time)
+            return issue_train(_place, _time)
     app.logger.error("others")
 
     return jsonify(response)
