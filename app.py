@@ -51,14 +51,12 @@ def main():
     event = response.get("event", {})
     message = event.get("message", {})
     content_str = message.get("content", "")
-    app.logger.error(content_str)
 
     if content_str:
-        app.logger.error("content_str")
         content_dict = ast.literal_eval(content_str)
-        for k, v in content_dict.items():
-            app.logger.error(f"{k}: {v}")
+        app.logger.error(f"Content: {content_dict['text']}")
         keyword = detect(content_dict["text"])
+        app.logger.error(f"Keyword: {keyword}")
         if keyword:
             _place, _time = keyword
             app.logger.error(f"Place: {_place}, Time: {_time}")
