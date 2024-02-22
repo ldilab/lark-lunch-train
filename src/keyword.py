@@ -1,12 +1,12 @@
 from typing import Union, Tuple
 
 
-def detect(s: str) -> Union[Tuple[str, str], None]:
+def detect(s: str) -> Union[None, str, tuple[str, str]]:
     if not s.startswith("/lunchtrain"):
-        return
+        return "Invalid format. Please use `/lunchtrain` [place]에서 [time]에."
 
     if not ("에" in s and "에서" in s):
-        return
+        return "Invalid format. Please use /lunchtrain [place]`에서` [time]`에`."
 
     s = s.split("/lunchtrain")[1].strip()
     eh_index = s.index("에")
@@ -22,9 +22,9 @@ def detect(s: str) -> Union[Tuple[str, str], None]:
 
     # if time is not in form of HH:MM
     if len(time.split(":")) != 2:
-        return
+        return "Invalid time format. Please use HH:MM."
 
     if not time.split(":")[0].isdigit() or not time.split(":")[1].isdigit():
-        return
+        return "Invalid time format. Please use HH:MM."
 
     return place, time

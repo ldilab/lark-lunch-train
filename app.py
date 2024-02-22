@@ -54,7 +54,6 @@ def main():
 
     if content_str:
         content_dict = ast.literal_eval(content_str)
-        app.logger.error(f"Content: {content_dict['text']}")
         keyword = detect(content_dict["text"])
         app.logger.error(f"Keyword: {keyword}")
         if keyword:
