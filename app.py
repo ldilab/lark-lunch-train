@@ -46,6 +46,7 @@ def main():
     cipher = AESCipher(ENCRYPT_KEY)
     challenge = cipher.decrypt_string(encrypt_target)
     response = ast.literal_eval(challenge)
+    app.logger.error(response)
 
     return jsonify(response)
 
