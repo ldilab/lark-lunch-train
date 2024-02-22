@@ -22,9 +22,9 @@ def detect(s: str) -> Union[None, str, tuple[str, str]]:
 
     # if time is not in form of HH:MM
     if len(time.split(":")) != 2:
-        return "Invalid time format. length Please use HH:MM."
+        return f"Invalid time format (time: {time}). Please use HH:MM."
 
     if not time.split(":")[0].isdigit() or not time.split(":")[1].isdigit():
-        return "Invalid time format. digit Please use HH:MM."
+        return f"Invalid time format (time: {time}). Please use HH:MM."
 
     return place, time
