@@ -55,7 +55,8 @@ def main():
         keyword = detect(content_dict["text"])
         if keyword:
             _place, _time = keyword
-            # issue_train(_place, _time)
+            app.logger.info(f"Place: {_place}, Time: {_time}")
+            issue_train(_place, _time)
 
 
     return jsonify(response)
