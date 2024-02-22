@@ -3,8 +3,6 @@ from dataclasses import dataclass
 from datetime import time
 from typing import List
 
-from app import app, running
-
 
 @dataclass
 class Passenger:
@@ -14,6 +12,7 @@ class Passenger:
 
 class Train:
     def __init__(self, poll_time: str, launch_time: str, reminder_time: str, clear_time: str, train_id: str, destination: str) -> None:
+        self.logger = None
         self.poll_time: time = datetime.datetime.strptime(poll_time, '%H:%M').time()
         self.launch_time: time = datetime.datetime.strptime(launch_time, '%H:%M').time()
         self.reminder_time: time = datetime.datetime.strptime(reminder_time, '%H:%M').time()
@@ -41,7 +40,7 @@ class Train:
         :return:
         """
         self.init_poll_published = True
-        app.logger.info(f"Poll for train {self.train_id} to {self.destination} has been published")
+        self.logger.info(f"Poll for train {self.train_id} to {self.destination} has been published")
 
     def update_passenger(self, passenger: Passenger) -> None:
         """
@@ -73,14 +72,14 @@ class Train:
         This method will be called to remind the group members about the train
         :return:
         """
-        app.logger.info(f"Reminder for train {self.train_id} to {self.destination} has been published")
+        self.logger.info(f"Reminder for train {self.train_id} to {self.destination} has been published")
 
     def launch_notification(self) -> None:
         """
         This method will be called when the train reaches the launch time to notify the group members
         :return:
         """
-        app.logger.info(f"Train {self.train_id} to {self.destination} has been launched")
+        self.logger.info(f"Train {self.train_id} to {self.destination} has been launched")
 
     def clear_passengers(self) -> None:
         """
@@ -96,9 +95,9 @@ class Train:
         """
         self.clear_passengers()
         self.init_poll_published = False
-        running.remove(self)
+        # running.remove(self)
 
-        app.logger.info(f"Train {self.train_id} to {self.destination} has been cleared")
+        self.logger.info(f"Train {self.train_id} to {self.destination} has been cleared")
 
 
 

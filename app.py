@@ -78,6 +78,7 @@ def issue_train(p, t):
     destination = p
 
     train = Train(launch_time, poll_time, reminder_time, clear_time, GROUP_ID, destination)
+    train.logger = app.logger
     running.append(train)
     start_job = scheduler.add_job(
         id=f"{len(running)}_poll_start",
