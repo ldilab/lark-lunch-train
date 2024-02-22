@@ -4,6 +4,7 @@ import os
 import time
 from datetime import datetime, timedelta
 from os.path import join, dirname
+from typing import Tuple
 
 import flask
 import requests
@@ -15,6 +16,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from flask_apscheduler import APScheduler
 
+from src.keyword import detect
 from src.train import Train, Running, Passenger
 from src.utils.api import MessageApiClient
 from src.utils.decrypt import AESCipher
@@ -46,17 +48,24 @@ def main():
     cipher = AESCipher(ENCRYPT_KEY)
     challenge = cipher.decrypt_string(encrypt_target)
     response = ast.literal_eval(challenge)
-    app.logger.error(response)
+    content_str = response.get("content", "")
+
+    if content_str:
+        content_dict = ast.literal_eval(content_str)
+        keyword = detect(content_dict["text"])
+        if keyword:
+            _place, _time = keyword
+            # issue_train(_place, _time)
+
 
     return jsonify(response)
 
 
-@app.route("/train", methods=['GET', 'POST'])
-def issue_train():
+def issue_train(p, t):
     if len(running) > 5:
         return "Too many trains running", 400
 
-    launch_time_dt = datetime.strptime(request.json['launch_time'], '%H:%M')
+    launch_time_dt = datetime.strptime(t, '%H:%M')
     poll_time_dt = datetime.now() + timedelta(minutes=1)
     reminder_time_dt = launch_time_dt - timedelta(minutes=5)
     clear_time_dt = launch_time_dt + timedelta(minutes=30)
@@ -66,32 +75,37 @@ def issue_train():
     reminder_time = reminder_time_dt.strftime('%H:%M')
     clear_time = clear_time_dt.strftime('%H:%M')
 
-    destination = request.json['destination']
+    destination = p
 
     train = Train(launch_time, poll_time, reminder_time, clear_time, GROUP_ID, destination)
     running.append(train)
-    job = scheduler.add_job(
+    start_job = scheduler.add_job(
         id=f"{len(running)}_poll_start",
         func=train.onboarding_notification,
         trigger='cron',
         hour=poll_time_dt.hour,
         minute=poll_time_dt.minute,
     )
-
-    scheduler.add_job(
+    reminder_job = scheduler.add_job(
         id=f"{len(running)}_reminder",
         func=train.reminder_notification,
         trigger='cron',
         hour=reminder_time_dt.hour,
         minute=reminder_time_dt.minute,
     )
-    scheduler.add_job(
+    clear_job = scheduler.add_job(
         id=f"{len(running)}_clear",
         func=train.clear_train,
         trigger='cron',
         hour=clear_time_dt.hour,
         minute=clear_time_dt.minute,
     )
+
+    jobs.append(start_job)
+    jobs.append(reminder_job)
+    jobs.append(clear_job)
+
+    return "Train issued", 200
 
 
 @app.route("/passenger", methods=['GET', 'POST', 'DELETE'])

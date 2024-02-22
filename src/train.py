@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from datetime import time
 from typing import List
 
+from app import app, running
+
 
 @dataclass
 class Passenger:
@@ -39,7 +41,7 @@ class Train:
         :return:
         """
         self.init_poll_published = True
-        raise NotImplementedError
+        app.logger.info(f"Poll for train {self.train_id} to {self.destination} has been published")
 
     def update_passenger(self, passenger: Passenger) -> None:
         """
@@ -71,14 +73,14 @@ class Train:
         This method will be called to remind the group members about the train
         :return:
         """
-        raise NotImplementedError
+        app.logger.info(f"Reminder for train {self.train_id} to {self.destination} has been published")
 
     def launch_notification(self) -> None:
         """
         This method will be called when the train reaches the launch time to notify the group members
         :return:
         """
-        raise NotImplementedError
+        app.logger.info(f"Train {self.train_id} to {self.destination} has been launched")
 
     def clear_passengers(self) -> None:
         """
@@ -94,6 +96,9 @@ class Train:
         """
         self.clear_passengers()
         self.init_poll_published = False
+        running.remove(self)
+
+        app.logger.info(f"Train {self.train_id} to {self.destination} has been cleared")
 
 
 
