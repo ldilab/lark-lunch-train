@@ -49,7 +49,8 @@ def main():
     challenge = cipher.decrypt_string(encrypt_target)
     response = ast.literal_eval(challenge)
     content_str = response.get("content", "")
-
+    for k, v in response.items():
+        app.logger.error(f"{k}: {v}")
     if content_str:
         app.logger.error("content_str")
         content_dict = ast.literal_eval(content_str)
