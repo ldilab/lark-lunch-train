@@ -9,9 +9,9 @@ def detect(s: str) -> Union[None, str, tuple[str, str]]:
         return "Invalid format. Please use /lunchtrain [place]`에서` [time]`에`."
 
     s = s.split("/lunchtrain")[1].strip()
-    eh_index = s.index("에")
-    es_index = s.index("에서")
-    if eh_index > es_index:
+    eh_index = s.index("에 ")
+    es_index = s.index("에서 ")
+    if es_index < eh_index:
         # XXX에서 YYY에 ZZZ
         place = s.split("에서")[0].strip()
         time = s.split("에서")[1].split("에")[0].strip()
