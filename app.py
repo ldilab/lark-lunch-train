@@ -68,9 +68,11 @@ def main():
 def issue_train(p, t):
     if len(running) > 5:
         return "Too many trains running", 400
+    t_dt = datetime.strptime(t, '%H:%M')
+    now_dt = datetime.now()
+    launch_time_dt = datetime(now_dt.year, now_dt.month, now_dt.day, t_dt.hour, t_dt.minute)
 
-    launch_time_dt = datetime.strptime(t, '%H:%M')
-    poll_time_dt = datetime.now() + timedelta(seconds=10)
+    poll_time_dt = now_dt + timedelta(seconds=10)
     reminder_time_dt = launch_time_dt - timedelta(minutes=1)
     clear_time_dt = launch_time_dt + timedelta(minutes=1)
 
