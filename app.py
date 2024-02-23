@@ -167,12 +167,7 @@ def update_passenger():
     else:
         return "Invalid action", 400
 
-    return message_api_client.make_card(
-        receive_id_type="open_id",
-        receive_id=user_id,
-        msg_type="interactive",
-        content=ONBOARD_MESSAGE([passenger.user_name for passenger in running[0].passengers])
-    )
+    return jsonify(ONBOARD_MESSAGE([passenger.user_name for passenger in running[0].passengers], is_str=False))
 
 
 scheduler.init_app(app)

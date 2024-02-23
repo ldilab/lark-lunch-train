@@ -1,7 +1,7 @@
 import json
 
 
-def ONBOARD_MESSAGE(user_names: list[str]):
+def ONBOARD_MESSAGE(user_names: list[str], is_str: bool = True):
     user_names = [f"@{user}" for user in user_names]
     users = ", ".join(user_names)
     card_obj = {
@@ -115,4 +115,6 @@ def ONBOARD_MESSAGE(user_names: list[str]):
         }
       ]
     }
-    return json.dumps(card_obj)
+    if is_str:
+        return json.dumps(card_obj)
+    return card_obj
