@@ -115,7 +115,7 @@ def issue_train(p, t):
     destination = p
 
     train = Train(launch_time, poll_time, reminder_time, clear_time, GROUP_ID, destination)
-    train.logger = app.logger
+    running.append(train)
     scheduler.add_job(
         id=f"poll_start",
         func=train.onboarding_notification,
@@ -138,8 +138,6 @@ def issue_train(p, t):
     )
     app.logger.error("clear time: " + str(clear_time_dt))
 
-    # test to me
-    message_api_client.send_text_with_open_id(OPEN_ID, f"Train to {destination} is issued at {launch_time}")
 
     return "Train issued", 200
 

@@ -1,9 +1,11 @@
 import datetime
+import os
 from dataclasses import dataclass
 from datetime import time
 from typing import List
 
 from src import running
+from src.utils.api import MessageApiClient
 
 
 @dataclass
@@ -11,10 +13,13 @@ class Passenger:
     open_id: str = None
 
 
+OPEN_ID = os.getenv("OPEN_ID")
+
+
 class Train:
     def __init__(self, poll_time: str, launch_time: str, reminder_time: str, clear_time: str, train_id: str,
-                 destination: str) -> None:
-        self.logger = None
+                 destination: str, message_client: MessageApiClient):
+        self.message_api_client = message_client
         self.poll_time: time = datetime.datetime.strptime(poll_time, '%H:%M').time()
         self.launch_time: time = datetime.datetime.strptime(launch_time, '%H:%M').time()
         self.reminder_time: time = datetime.datetime.strptime(reminder_time, '%H:%M').time()
@@ -42,7 +47,10 @@ class Train:
         :return:
         """
         self.init_poll_published = True
-        self.logger.error(f"Poll for train {self.train_id} to {self.destination} has been published")
+        self.message_api_client.send_text_with_open_id(
+            OPEN_ID,
+            f"(INIT) Poll for train {self.train_id} to {self.destination} at {self.poll_time} has been published"
+        )
 
     def update_passenger(self, passenger: Passenger) -> None:
         """
@@ -74,14 +82,20 @@ class Train:
         This method will be called to remind the group members about the train
         :return:
         """
-        self.logger.error(f"Reminder for train {self.train_id} to {self.destination} has been published")
+        self.message_api_client.send_text_with_open_id(
+            OPEN_ID,
+            f"(REMIND) Train {self.train_id} to {self.destination} will be launched at {self.launch_time}"
+        )
 
     def launch_notification(self) -> None:
         """
         This method will be called when the train reaches the launch time to notify the group members
         :return:
         """
-        self.logger.error(f"Train {self.train_id} to {self.destination} has been launched")
+        self.message_api_client.send_text_with_open_id(
+            OPEN_ID,
+            f"(LAUNCH) Train {self.train_id} to {self.destination} has been launched"
+        )
 
     def clear_passengers(self) -> None:
         """
@@ -99,7 +113,10 @@ class Train:
         self.init_poll_published = False
         # running.remove(self)
         running.pop()
-        self.logger.error(f"Train {self.train_id} to {self.destination} has been cleared")
+        self.message_api_client.send_text_with_open_id(
+            OPEN_ID,
+            f"(CLEAR) Train {self.train_id} to {self.destination} has been cleared"
+        )
 
 
 @dataclass
