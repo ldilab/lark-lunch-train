@@ -8,6 +8,8 @@ from typing import Tuple
 
 import flask
 import requests
+from apscheduler.executors.pool import ProcessPoolExecutor
+from apscheduler.schedulers.background import BackgroundScheduler
 from dotenv import load_dotenv
 from flask import Flask, jsonify
 from flask import request
@@ -23,7 +25,16 @@ from src.utils.decrypt import AESCipher
 from src.utils.event import EventManager, UrlVerificationEvent, MessageReceiveEvent
 
 app = Flask(__name__)
-scheduler = APScheduler(app=app)
+executors = {
+             'default': {'type': 'threadpool', 'max_workers': 20},
+             'processpool': ProcessPoolExecutor(max_workers=5)
+            }
+job_defaults = {
+                'coalesce': False,
+                'max_instances': 3
+               }
+scheduler = BackgroundScheduler(executors=executors, job_defaults=job_defaults, timezone="KST")
+
 auth = HTTPBasicAuth()
 
 dotenv_path = join(dirname(__file__), '.env')
@@ -105,7 +116,6 @@ def issue_train(p, t):
         trigger='date',
         run_date=clear_time_dt,
     )
-    jobs.append(f"{len(running)}_clear")
     app.logger.error("clear time: " + str(clear_time_dt))
 
     app.logger.error(jobs)
