@@ -85,35 +85,25 @@ def issue_train(p, t):
 
     train = Train(launch_time, poll_time, reminder_time, clear_time, GROUP_ID, destination)
     train.logger = app.logger
-    running.append(train)
     scheduler.add_job(
         id=f"{len(running)}_poll_start",
         func=train.onboarding_notification,
-        trigger='cron',
-        coalesce=True,
-        hour=poll_time_dt.hour,
-        minute=poll_time_dt.minute,
-        second=poll_time_dt.second,
+        trigger='date',
+        run_date=poll_time_dt,
     )
-    jobs.append(f"{len(running)}_poll_start")
     app.logger.error("poll time: " + str(poll_time_dt))
     scheduler.add_job(
         id=f"{len(running)}_reminder",
         func=train.reminder_notification,
-        trigger='cron',
-        coalesce=True,
-        hour=reminder_time_dt.hour,
-        minute=reminder_time_dt.minute,
+        trigger='date',
+        run_date=reminder_time_dt,
     )
-    jobs.append(f"{len(running)}_reminder")
     app.logger.error("reminder time: " + str(reminder_time_dt))
     scheduler.add_job(
         id=f"{len(running)}_clear",
         func=train.clear_train,
-        trigger='cron',
-        coalesce=True,
-        hour=clear_time_dt.hour,
-        minute=clear_time_dt.minute,
+        trigger='date',
+        run_date=clear_time_dt,
     )
     jobs.append(f"{len(running)}_clear")
     app.logger.error("clear time: " + str(clear_time_dt))
