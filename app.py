@@ -28,7 +28,7 @@ from src.utils.event import EventManager, UrlVerificationEvent, MessageReceiveEv
 
 
 # Set your desired timezone
-desired_timezone = "Asia/Seoul"  # Change this to your desired timezone
+desired_timezone = "Asia/Japan"  # Change this to your desired timezone
 local_tz = pytz.timezone(desired_timezone)
 utc_tz = pytz.timezone("UTC")
 # Set a default timezone (e.g., New York)
