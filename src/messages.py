@@ -2,6 +2,7 @@ import json
 
 
 def ONBOARD_MESSAGE(
+        issuer: str,
         place: str,
         time: str,
         user_names: list[str], is_str: bool = True
@@ -13,7 +14,7 @@ def ONBOARD_MESSAGE(
             "template": "blue",
             "title": {
                 "tag": "plain_text",
-                "content": "[🚂 LunchTrain] ChooChoo!"
+                "content": f"[🚂 @{issuer}의 기차] 밥 먹으러 가요!"
             }
         },
         "elements": [

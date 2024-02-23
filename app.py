@@ -82,6 +82,10 @@ def main():
     response = ast.literal_eval(challenge)
     app.logger.error(response)
     event = response.get("event", {})
+    sender = event.get("sender", {})
+    sender_id = sender.get("sender_id", {}).get("open_id", "")
+    sender_name = message_api_client.get_user_info(sender_id).get("name", "")
+
     message = event.get("message", {})
     content_str = message.get("content", "")
 
@@ -92,13 +96,13 @@ def main():
         if keyword:
             _place, _time = keyword
             app.logger.error(f"Place: {_place}, Time: {_time}")
-            return issue_train(_place, _time)
+            return issue_train(_place, _time, sender_name)
     app.logger.error("others")
 
     return jsonify(response)
 
 
-def issue_train(p, t):
+def issue_train(p, t, issuer: str):
     if len(running) > 0:
         return "Too many trains running", 400
     t_dt = datetime.strptime(t, '%H:%M')
@@ -116,7 +120,10 @@ def issue_train(p, t):
 
     destination = p
 
-    train = Train(poll_time, launch_time, reminder_time, clear_time, GROUP_ID, destination, app.logger, message_api_client)
+    train = Train(
+        poll_time, launch_time, reminder_time, clear_time, GROUP_ID, destination, app.logger, message_api_client,
+        issuer
+    )
     running.append(train)
     scheduler.add_job(
         id=f"poll_start",
@@ -161,6 +168,7 @@ def update_passenger():
 
     if action != "cancel":
         msg = ONBOARD_MESSAGE(
+            issuer=running[0].issuer,
             place=running[0].destination,
             time=running[0].launch_time.strftime('%H:%M'),
             user_names=[passenger.user_name for passenger in running[0].passengers], is_str=False

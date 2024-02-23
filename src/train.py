@@ -20,7 +20,7 @@ OPEN_ID = os.getenv("OPEN_ID")
 
 class Train:
     def __init__(self, poll_time: str, launch_time: str, reminder_time: str, clear_time: str, train_id: str,
-                 destination: str, logger, message_client: MessageApiClient):
+                 destination: str, logger, message_client: MessageApiClient, issuer: str):
         self.logger = logger
         self.message_api_client = message_client
         self.poll_time: time = datetime.datetime.strptime(poll_time, '%H:%M').time()
@@ -31,6 +31,7 @@ class Train:
         self.passengers: List[Passenger] = []
         self.destination: str = destination
         self.init_poll_published = False
+        self.issuer = issuer
 
     def update_launch_time(self, poll_time: str) -> None:
         self.launch_time = datetime.datetime.strptime(poll_time, '%H:%M').time()
@@ -51,6 +52,7 @@ class Train:
         """
         self.init_poll_published = True
         msg = ONBOARD_MESSAGE(
+            issuer=self.issuer,
             place=self.destination,
             time=self.launch_time.strftime('%H:%M'),
             user_names=[passenger.user_name for passenger in self.passengers], is_str=True
