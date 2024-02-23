@@ -85,12 +85,6 @@ def ONBOARD_MESSAGE(user_names: list[str]):
                 "content": "🚂 탑승!"
               },
               "type": "primary",
-              "multi_url": {
-                "url": "http://ldi.snu.ac.kr:18000/card",
-                "pc_url": "",
-                "android_url": "",
-                "ios_url": ""
-              },
               "value": {
                 "state": "on"
               }
@@ -102,12 +96,6 @@ def ONBOARD_MESSAGE(user_names: list[str]):
                 "content": "👋 하차!"
               },
               "type": "primary",
-              "multi_url": {
-                "url": "http://ldi.snu.ac.kr:18000/card",
-                "pc_url": "",
-                "android_url": "",
-                "ios_url": ""
-              },
               "value": {
                 "state": "off"
               }
@@ -119,12 +107,6 @@ def ONBOARD_MESSAGE(user_names: list[str]):
                 "content": "❌ 약속 취소"
               },
               "type": "danger",
-              "multi_url": {
-                "url": "http://ldi.snu.ac.kr:18000/card",
-                "pc_url": "",
-                "android_url": "",
-                "ios_url": ""
-              },
               "value": {
                 "state": "cancel"
               }
