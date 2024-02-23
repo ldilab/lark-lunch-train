@@ -1,7 +1,11 @@
 import json
 
 
-def ONBOARD_MESSAGE(user_names: list[str], is_str: bool = True):
+def ONBOARD_MESSAGE(
+        place: str,
+        time: str,
+        user_names: list[str], is_str: bool = True
+):
     user_names = [f"@{user}" for user in user_names]
     users = ", ".join(user_names)
     card_obj = {
@@ -27,7 +31,7 @@ def ONBOARD_MESSAGE(user_names: list[str], is_str: bool = True):
                 {
                   "tag": "div",
                   "text": {
-                    "content": "**🔴 장소(Place):**\nXXX",
+                    "content": f"**🔴 장소(Place):**\n{place}",
                     "tag": "lark_md"
                   }
                 }
@@ -42,7 +46,7 @@ def ONBOARD_MESSAGE(user_names: list[str], is_str: bool = True):
                 {
                   "tag": "div",
                   "text": {
-                    "content": "**🕐 시간(Time):**\nYY:ZZ",
+                    "content": f"**🕐 시간(Time):**\n{time}",
                     "tag": "lark_md"
                   }
                 }

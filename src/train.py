@@ -56,7 +56,11 @@ class Train:
             receive_id_type="open_id",
             receive_id=OPEN_ID,
             msg_type="interactive",
-            content=ONBOARD_MESSAGE([passenger.user_name for passenger in self.passengers])
+            content=ONBOARD_MESSAGE(
+                place=self.destination,
+                time=self.launch_time.strftime('%H:%M'),
+                user_names=[passenger.user_name for passenger in self.passengers], is_str=True
+            )
         )
 
     def update_passenger(self, passenger: Passenger) -> None:

@@ -166,8 +166,13 @@ def update_passenger():
         running[0].clear_train()
     else:
         return "Invalid action", 400
-    app.logger.error(ONBOARD_MESSAGE([passenger.user_name for passenger in running[0].passengers], is_str=False))
-    return jsonify(ONBOARD_MESSAGE([passenger.user_name for passenger in running[0].passengers], is_str=False))
+    msg = ONBOARD_MESSAGE(
+        place=running[0].destination,
+        time=running[0].launch_time.strftime('%H:%M'),
+        user_names=[passenger.user_name for passenger in running[0].passengers], is_str=False
+    )
+    app.logger.error(msg)
+    return jsonify(msg)
 
 
 scheduler.init_app(app)
