@@ -50,17 +50,17 @@ class Train:
         :return:
         """
         self.init_poll_published = True
-        msg = f"(INIT) Poll for train {self.train_id} to {self.destination} at {self.poll_time} has been published"
-        self.logger.error(ONBOARD_MESSAGE([passenger.user_name for passenger in self.passengers]))
+        msg = ONBOARD_MESSAGE(
+            place=self.destination,
+            time=self.launch_time.strftime('%H:%M'),
+            user_names=[passenger.user_name for passenger in self.passengers], is_str=True
+        )
+        self.logger.error(msg)
         self.message_api_client.send(
             receive_id_type="open_id",
             receive_id=OPEN_ID,
             msg_type="interactive",
-            content=ONBOARD_MESSAGE(
-                place=self.destination,
-                time=self.launch_time.strftime('%H:%M'),
-                user_names=[passenger.user_name for passenger in self.passengers], is_str=True
-            )
+            content=msg
         )
 
     def update_passenger(self, passenger: Passenger) -> None:
