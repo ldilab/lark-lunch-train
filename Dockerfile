@@ -2,6 +2,9 @@
 
 FROM python:3.10-alpine
 
+ENV TZ="Asia/Seoul"
+RUN date
+
 RUN apk add build-base linux-headers
 RUN apk add --no-cache gcc
 

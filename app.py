@@ -99,7 +99,7 @@ def issue_train(p, t):
     if len(running) > 5:
         return "Too many trains running", 400
     t_dt = datetime.strptime(t, '%H:%M')
-    now_dt = datetime.now()
+    now_dt = datetime.now(tz=local_tz)
     launch_time_dt = datetime(now_dt.year, now_dt.month, now_dt.day, t_dt.hour, t_dt.minute, tzinfo=local_tz).astimezone(utc_tz)
 
     poll_time_dt = now_dt + timedelta(seconds=10)
