@@ -33,6 +33,18 @@ class MessageApiClient(object):
         data = response.json().get("data", {}).get("user", {})
         return data
 
+    def remove_member(self, open_id):
+        self._authorize_tenant_access_token()
+        url = f"{self._lark_host}/open-apis/contact/v3/users/{open_id}/leave"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + self.tenant_access_token,
+        }
+        response = requests.post(
+            url,
+            headers=headers
+        )
+        return response.json()
 
     @property
     def tenant_access_token(self):

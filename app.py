@@ -22,7 +22,7 @@ from flask_apscheduler import APScheduler
 
 from src import running
 from src.keyword import detect
-from src.messages import ONBOARD_MESSAGE
+from src.messages import ONBOARD_MESSAGE, CANCEL_MESSAGE
 from src.train import Train, Running, Passenger
 from src.utils.api import MessageApiClient
 from src.utils.decrypt import AESCipher
@@ -163,15 +163,23 @@ def update_passenger():
     elif action == "off":
         running[0].remove_passenger(user)
     elif action == "cancel":
-        running[0].remove_passenger(user)
         running[0].clear_train()
     else:
         return "Invalid action", 400
-    msg = ONBOARD_MESSAGE(
-        place=running[0].destination,
-        time=running[0].launch_time.strftime('%H:%M'),
-        user_names=[passenger.user_name for passenger in running[0].passengers], is_str=False
-    )
+
+    if action != "cancel":
+        msg = ONBOARD_MESSAGE(
+            place=running[0].destination,
+            time=running[0].launch_time.strftime('%H:%M'),
+            user_names=[passenger.user_name for passenger in running[0].passengers], is_str=False
+        )
+    else:
+        msg = CANCEL_MESSAGE(
+            place=running[0].destination,
+            time=running[0].launch_time.strftime('%H:%M'),
+            is_str=False
+        )
+
     app.logger.error(msg)
     return jsonify(msg)
 
