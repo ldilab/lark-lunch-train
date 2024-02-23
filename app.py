@@ -102,9 +102,9 @@ def issue_train(p, t):
     now_dt = datetime.now(tz=local_tz)
     launch_time_dt = datetime(now_dt.year, now_dt.month, now_dt.day, t_dt.hour, t_dt.minute, tzinfo=local_tz)
 
-    poll_time_dt = now_dt + timedelta(seconds=10)
-    reminder_time_dt = launch_time_dt - timedelta(minutes=1)
-    clear_time_dt = launch_time_dt + timedelta(minutes=1)
+    poll_time_dt = (now_dt + timedelta(seconds=10)).astimezone(local_tz)
+    reminder_time_dt = (launch_time_dt - timedelta(minutes=1)).astimezone(local_tz)
+    clear_time_dt = (launch_time_dt + timedelta(minutes=1)).astimezone(local_tz)
 
     launch_time = launch_time_dt.strftime('%H:%M')
     poll_time = poll_time_dt.strftime('%H:%M')
