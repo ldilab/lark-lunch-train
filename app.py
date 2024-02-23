@@ -23,7 +23,7 @@ from src.utils.decrypt import AESCipher
 from src.utils.event import EventManager, UrlVerificationEvent, MessageReceiveEvent
 
 app = Flask(__name__)
-scheduler = APScheduler()
+scheduler = APScheduler(app=app)
 auth = HTTPBasicAuth()
 
 dotenv_path = join(dirname(__file__), '.env')
@@ -88,6 +88,7 @@ def issue_train(p, t):
         id=f"{len(running)}_poll_start",
         func=train.onboarding_notification,
         trigger='cron',
+        coalesce=True,
         hour=poll_time_dt.hour,
         minute=poll_time_dt.minute,
         second=poll_time_dt.second,
@@ -97,6 +98,7 @@ def issue_train(p, t):
         id=f"{len(running)}_reminder",
         func=train.reminder_notification,
         trigger='cron',
+        coalesce=True,
         hour=reminder_time_dt.hour,
         minute=reminder_time_dt.minute,
     )
@@ -105,6 +107,7 @@ def issue_train(p, t):
         id=f"{len(running)}_clear",
         func=train.clear_train,
         trigger='cron',
+        coalesce=True,
         hour=clear_time_dt.hour,
         minute=clear_time_dt.minute,
     )
