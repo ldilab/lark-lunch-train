@@ -52,9 +52,11 @@ class Train:
         self.init_poll_published = True
         msg = f"(INIT) Poll for train {self.train_id} to {self.destination} at {self.poll_time} has been published"
         self.logger.error(ONBOARD_MESSAGE([passenger.user_name for passenger in self.passengers]))
-        self.message_api_client.send_text_with_open_id(
-            OPEN_ID,
-            ONBOARD_MESSAGE([passenger.user_name for passenger in self.passengers])
+        self.message_api_client.send(
+            receive_id_type="open_id",
+            receive_id=OPEN_ID,
+            msg_type="interactive",
+            content=ONBOARD_MESSAGE([passenger.user_name for passenger in self.passengers])
         )
 
     def update_passenger(self, passenger: Passenger) -> None:
