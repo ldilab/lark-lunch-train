@@ -20,7 +20,8 @@ OPEN_ID = os.getenv("OPEN_ID")
 
 class Train:
     def __init__(self, poll_time: str, launch_time: str, reminder_time: str, clear_time: str, train_id: str,
-                 destination: str, message_client: MessageApiClient):
+                 destination: str, logger, message_client: MessageApiClient):
+        self.logger = logger
         self.message_api_client = message_client
         self.poll_time: time = datetime.datetime.strptime(poll_time, '%H:%M').time()
         self.launch_time: time = datetime.datetime.strptime(launch_time, '%H:%M').time()
@@ -50,6 +51,7 @@ class Train:
         """
         self.init_poll_published = True
         msg = f"(INIT) Poll for train {self.train_id} to {self.destination} at {self.poll_time} has been published"
+        self.logger.error(ONBOARD_MESSAGE([passenger.user_name for passenger in self.passengers]))
         self.message_api_client.send_text_with_open_id(
             OPEN_ID,
             ONBOARD_MESSAGE([passenger.user_name for passenger in self.passengers])

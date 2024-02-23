@@ -115,7 +115,7 @@ def issue_train(p, t):
 
     destination = p
 
-    train = Train(launch_time, poll_time, reminder_time, clear_time, GROUP_ID, destination, message_api_client)
+    train = Train(launch_time, poll_time, reminder_time, clear_time, GROUP_ID, destination, app.logger, message_api_client)
     running.append(train)
     scheduler.add_job(
         id=f"poll_start",
