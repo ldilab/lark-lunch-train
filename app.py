@@ -137,7 +137,9 @@ def issue_train(p, t):
     )
     app.logger.error("clear time: " + str(clear_time_dt))
 
-    app.logger.error(scheduler.get_jobs())
+    for job in scheduler.get_jobs():
+        app.logger.error(job)
+        app.logger.error(job.next_run_time)
 
     return "Train issued", 200
 
