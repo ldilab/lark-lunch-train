@@ -158,11 +158,11 @@ def update_passenger():
     app.logger.error(user_info)
     user = Passenger(user_id, user_info.get('name', ""))
     if action == "on":
-        running[0].update_passenger(Passenger(user_id))
+        running[0].update_passenger(user)
     elif action == "off":
-        running[0].remove_passenger(Passenger(user_id))
+        running[0].remove_passenger(user)
     elif action == "cancel":
-        running[0].remove_passenger(Passenger(user_id))
+        running[0].remove_passenger(user)
         running[0].clear_train()
     else:
         return "Invalid action", 400
