@@ -70,9 +70,9 @@ def issue_train(p, t):
         return "Too many trains running", 400
 
     launch_time_dt = datetime.strptime(t, '%H:%M')
-    poll_time_dt = datetime.now() + timedelta(minutes=1)
-    reminder_time_dt = launch_time_dt - timedelta(minutes=2)
-    clear_time_dt = launch_time_dt + timedelta(minutes=3)
+    poll_time_dt = datetime.now() + timedelta(seconds=10)
+    reminder_time_dt = launch_time_dt - timedelta(minutes=1)
+    clear_time_dt = launch_time_dt + timedelta(minutes=1)
 
     launch_time = launch_time_dt.strftime('%H:%M')
     poll_time = poll_time_dt.strftime('%H:%M')
@@ -90,6 +90,7 @@ def issue_train(p, t):
         trigger='cron',
         hour=poll_time_dt.hour,
         minute=poll_time_dt.minute,
+        second=poll_time_dt.second,
     )
     jobs.append(f"{len(running)}_poll_start")
     scheduler.add_job(
@@ -109,6 +110,7 @@ def issue_train(p, t):
     )
     jobs.append(f"{len(running)}_clear")
 
+    app.logger.error(jobs)
 
 
     return "Train issued", 200
