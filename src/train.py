@@ -93,10 +93,6 @@ class Train:
         """
         msg = f"(REMIND) Train {self.train_id} to {self.destination} will be launched at {self.launch_time}"
         self.logger.error(f"Reminder: {msg}")
-        self.message_api_client.send_text_with_open_id(
-            OPEN_ID,
-            '{"text":"' + msg + '"}'
-        )
 
     def launch_notification(self) -> None:
         """
@@ -105,10 +101,6 @@ class Train:
         """
         msg = f"(LAUNCH) Train {self.train_id} to {self.destination} has been launched"
         self.logger.error(f"Launch: {msg}")
-        self.message_api_client.send_text_with_open_id(
-            OPEN_ID,
-            '{"text":"' + msg + '"}'
-        )
 
     def clear_passengers(self) -> None:
         """
@@ -128,10 +120,7 @@ class Train:
         running.pop()
         msg = f"(CLEAR) Train {self.train_id} to {self.destination} has been cleared"
         self.logger.error(f"Clear: {msg}")
-        self.message_api_client.send_text_with_open_id(
-            OPEN_ID,
-            '{"text":"' + msg + '"}'
-        )
+        self.logger.error(f"clear {running=}")
 
 
 @dataclass
