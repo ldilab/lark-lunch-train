@@ -22,6 +22,7 @@ from flask_apscheduler import APScheduler
 
 from src import running
 from src.keyword import detect
+from src.messages import ONBOARD_MESSAGE
 from src.train import Train, Running, Passenger
 from src.utils.api import MessageApiClient
 from src.utils.decrypt import AESCipher
@@ -143,7 +144,7 @@ def issue_train(p, t):
     return "Train issued", 200
 
 
-@app.route("/card", methods=['GET', 'POST', 'DELETE'])
+@app.route("/card", methods=['POST'])
 def update_passenger():
     dict_data = json.loads(request.data)
     if dict_data.get("challenge"):
@@ -151,11 +152,27 @@ def update_passenger():
             "challenge": dict_data.get("challenge")
         })
     app.logger.error(dict_data)
-    user_id = request.json['user_id']
-    if request.method == 'POST':
-        running.train.update_passenger(Passenger(user_id))
-    elif request.method == 'DELETE':
-        running.train.remove_passenger(Passenger(user_id))
+    user_id = request.json['open_id']
+    action = request.json['action'].get('value', "")
+    user_info = message_api_client.get_user_info(user_id)
+    app.logger.error(user_info)
+    user = Passenger(user_id, user_info.get('name', ""))
+    if action == "on":
+        running[0].update_passenger(Passenger(user_id))
+    elif action == "off":
+        running[0].remove_passenger(Passenger(user_id))
+    elif action == "cancel":
+        running[0].remove_passenger(Passenger(user_id))
+        running[0].clear_train()
+    else:
+        return "Invalid action", 400
+
+    return message_api_client.make_card(
+        receive_id_type="open_id",
+        receive_id=user_id,
+        msg_type="interactive",
+        content=ONBOARD_MESSAGE([passenger.user_name for passenger in running[0].passengers])
+    )
 
 
 scheduler.init_app(app)

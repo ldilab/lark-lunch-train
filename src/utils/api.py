@@ -19,12 +19,52 @@ class MessageApiClient(object):
         self._tenant_access_token = ""
         self.logger = logger
 
+    def get_user_info(self, open_id):
+        self._authorize_tenant_access_token()
+        url = f"{self._lark_host}/open-apis/contact/v3/users/{open_id}"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + self.tenant_access_token,
+        }
+        response = requests.get(
+            url,
+            headers=headers
+        )
+        data = response.json().get("data", {}).get("user", {})
+        return data
+
+
     @property
     def tenant_access_token(self):
         return self._tenant_access_token
 
     def send_text_with_open_id(self, open_id, content):
         self.send("open_id", open_id, "text", content)
+
+    def make_card(self, receive_id_type, receive_id, msg_type, content):
+        self._authorize_tenant_access_token()
+        url = "{}{}?receive_id_type={}".format(
+            self._lark_host, MESSAGE_URI, receive_id_type
+        )
+        self.logger.error(f"{url=}")
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + self.tenant_access_token,
+        }
+        self.logger.error(f"{headers=}")
+        req_body = {
+            "receive_id": receive_id,
+            "content": content,
+            "msg_type": msg_type,
+        }
+        if msg_type == "interactive":
+            req_body["card"] = {
+                "config": {
+                    "update_multi": True
+                }
+            }
+        self.logger.error(f"{req_body=}")
+        return url, headers, req_body
 
     def send(self, receive_id_type, receive_id, msg_type, content):
         self._authorize_tenant_access_token()
