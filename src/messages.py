@@ -86,7 +86,7 @@ def ONBOARD_MESSAGE(user_names: list[str]):
               },
               "type": "primary",
               "multi_url": {
-                "url": "http://ldi.snu.ac.kr:18000/",
+                "url": "http://ldi.snu.ac.kr:18000/card",
                 "pc_url": "",
                 "android_url": "",
                 "ios_url": ""
@@ -103,7 +103,7 @@ def ONBOARD_MESSAGE(user_names: list[str]):
               },
               "type": "primary",
               "multi_url": {
-                "url": "http://ldi.snu.ac.kr:18000/",
+                "url": "http://ldi.snu.ac.kr:18000/card",
                 "pc_url": "",
                 "android_url": "",
                 "ios_url": ""
@@ -120,7 +120,7 @@ def ONBOARD_MESSAGE(user_names: list[str]):
               },
               "type": "danger",
               "multi_url": {
-                "url": "http://ldi.snu.ac.kr:18000/",
+                "url": "http://ldi.snu.ac.kr:18000/card",
                 "pc_url": "",
                 "android_url": "",
                 "ios_url": ""

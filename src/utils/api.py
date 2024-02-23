@@ -42,6 +42,12 @@ class MessageApiClient(object):
             "content": content,
             "msg_type": msg_type,
         }
+        if msg_type == "interactive":
+            req_body["card"] = {
+                "config": {
+                    "update_multi": True
+                }
+            }
         self.logger.error(f"{req_body=}")
         resp = requests.post(url=url, headers=headers, json=req_body)
         MessageApiClient._check_error_response(resp)
