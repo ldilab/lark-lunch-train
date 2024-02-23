@@ -33,7 +33,6 @@ desired_timezone = "Asia/Seoul"  # Change this to your desired timezone
 local_tz = pytz.timezone(desired_timezone)
 utc_tz = pytz.timezone("UTC")
 # Set a default timezone (e.g., New York)
-tz = tzlocal.get_localzone()
 
 app = Flask(__name__)
 
@@ -100,11 +99,11 @@ def issue_train(p, t):
         return "Too many trains running", 400
     t_dt = datetime.strptime(t, '%H:%M')
     now_dt = datetime.now(tz=local_tz)
-    launch_time_dt = datetime(now_dt.year, now_dt.month, now_dt.day, t_dt.hour, t_dt.minute, tzinfo=local_tz)
+    launch_time_dt = local_tz.localize(datetime(now_dt.year, now_dt.month, now_dt.day, t_dt.hour, t_dt.minute))
 
-    poll_time_dt = (now_dt + timedelta(seconds=10)).astimezone(local_tz)
-    reminder_time_dt = (launch_time_dt - timedelta(minutes=1)).astimezone(local_tz)
-    clear_time_dt = (launch_time_dt + timedelta(minutes=1)).astimezone(local_tz)
+    poll_time_dt = now_dt + timedelta(seconds=10)
+    reminder_time_dt = launch_time_dt - timedelta(minutes=1)
+    clear_time_dt = launch_time_dt + timedelta(minutes=1)
 
     launch_time = launch_time_dt.strftime('%H:%M')
     poll_time = poll_time_dt.strftime('%H:%M')
