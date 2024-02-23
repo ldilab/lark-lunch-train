@@ -26,7 +26,8 @@ class MessageApiClient(object):
         self.send("open_id", open_id, "text", content)
 
     def send(self, receive_id_type, receive_id, msg_type, content):
-        # send message to user, implemented based on Feishu open api capability. doc link: https://open.feishu.cn/document/uAjLw4CM/ukTMukTMukTM/reference/im-v1/message/create
+        # send message to user, implemented based on Feishu open api capability. doc link:
+        # https://open.feishu.cn/document/uAjLw4CM/ukTMukTMukTM/reference/im-v1/message/create
         self._authorize_tenant_access_token()
         url = "{}{}?receive_id_type={}".format(
             self._lark_host, MESSAGE_URI, receive_id_type

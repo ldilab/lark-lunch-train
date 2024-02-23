@@ -55,14 +55,16 @@ dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 GROUP_ID = os.getenv("GROUP_ID")
 
-
-
 # load from env
 APP_ID = os.getenv("APP_ID")
 APP_SECRET = os.getenv("APP_SECRET")
 VERIFICATION_TOKEN = os.getenv("VERIFICATION_TOKEN")
 ENCRYPT_KEY = os.getenv("ENCRYPT_KEY")
 LARK_HOST = os.getenv("LARK_HOST")
+OPEN_ID = os.getenv("OPEN_ID")
+
+
+message_api_client = MessageApiClient(APP_ID, APP_SECRET, LARK_HOST)
 
 
 @app.context_processor
@@ -136,9 +138,8 @@ def issue_train(p, t):
     )
     app.logger.error("clear time: " + str(clear_time_dt))
 
-    for job in scheduler.get_jobs():
-        app.logger.error(job)
-        app.logger.error(job.next_run_time)
+    # test to me
+    message_api_client.send_text_with_open_id(OPEN_ID, f"Train to {destination} is issued at {launch_time}")
 
     return "Train issued", 200
 
