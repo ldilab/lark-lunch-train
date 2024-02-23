@@ -153,7 +153,7 @@ def update_passenger():
         })
     app.logger.error(dict_data)
     user_id = request.json['open_id']
-    action = request.json['action'].get('value', "")
+    action = request.json['action'].get('value', {}).get("state", "")
     user_info = message_api_client.get_user_info(user_id)
     name = user_info.get('name', "")
     user = Passenger(user_id, name)
