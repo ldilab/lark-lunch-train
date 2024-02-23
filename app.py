@@ -28,7 +28,7 @@ auth = HTTPBasicAuth()
 
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
-GROUP_ID = os.environ.get("GROUP_ID")
+GROUP_ID = os.getenv("GROUP_ID")
 
 running = []
 jobs = []
@@ -71,8 +71,8 @@ def issue_train(p, t):
 
     launch_time_dt = datetime.strptime(t, '%H:%M')
     poll_time_dt = datetime.now() + timedelta(minutes=1)
-    reminder_time_dt = launch_time_dt - timedelta(minutes=5)
-    clear_time_dt = launch_time_dt + timedelta(minutes=30)
+    reminder_time_dt = launch_time_dt - timedelta(minutes=2)
+    clear_time_dt = launch_time_dt + timedelta(minutes=3)
 
     launch_time = launch_time_dt.strftime('%H:%M')
     poll_time = poll_time_dt.strftime('%H:%M')
@@ -84,31 +84,30 @@ def issue_train(p, t):
     train = Train(launch_time, poll_time, reminder_time, clear_time, GROUP_ID, destination)
     train.logger = app.logger
     running.append(train)
-    start_job = scheduler.add_job(
+    scheduler.add_job(
         id=f"{len(running)}_poll_start",
         func=train.onboarding_notification,
         trigger='cron',
         hour=poll_time_dt.hour,
         minute=poll_time_dt.minute,
     )
-    reminder_job = scheduler.add_job(
+    jobs.append(f"{len(running)}_poll_start")
+    scheduler.add_job(
         id=f"{len(running)}_reminder",
         func=train.reminder_notification,
         trigger='cron',
         hour=reminder_time_dt.hour,
         minute=reminder_time_dt.minute,
     )
-    clear_job = scheduler.add_job(
+    jobs.append(f"{len(running)}_reminder")
+    scheduler.add_job(
         id=f"{len(running)}_clear",
         func=train.clear_train,
         trigger='cron',
         hour=clear_time_dt.hour,
         minute=clear_time_dt.minute,
     )
-
-    jobs.append(start_job)
-    jobs.append(reminder_job)
-    jobs.append(clear_job)
+    jobs.append(f"{len(running)}_clear")
 
 
 
