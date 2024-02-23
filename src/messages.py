@@ -86,10 +86,13 @@ def ONBOARD_MESSAGE(user_names: list[str]):
               },
               "type": "primary",
               "multi_url": {
-                "url": "https://www.larksuite.com/hc/en-US/articles/082034844644",
+                "url": "http://ldi.snu.ac.kr:18000/",
                 "pc_url": "",
                 "android_url": "",
                 "ios_url": ""
+              },
+              "value": {
+                "state": "on"
               }
             },
             {
@@ -100,10 +103,13 @@ def ONBOARD_MESSAGE(user_names: list[str]):
               },
               "type": "primary",
               "multi_url": {
-                "url": "https://x4xsjsrpe3.larksuite.com/docx/W8pwdO7Y3osuJQxUM7duNEB0spc",
+                "url": "http://ldi.snu.ac.kr:18000/",
                 "pc_url": "",
                 "android_url": "",
                 "ios_url": ""
+              },
+              "value": {
+                "state": "off"
               }
             },
             {
@@ -114,10 +120,13 @@ def ONBOARD_MESSAGE(user_names: list[str]):
               },
               "type": "primary",
               "multi_url": {
-                "url": "https://larksuite.com/admin/appcenter/portal",
+                "url": "http://ldi.snu.ac.kr:18000/",
                 "pc_url": "",
                 "android_url": "",
                 "ios_url": ""
+              },
+              "value": {
+                "state": "cancel"
               }
             }
           ]
