@@ -94,6 +94,7 @@ def issue_train(p, t):
         second=poll_time_dt.second,
     )
     jobs.append(f"{len(running)}_poll_start")
+    app.logger.error("poll time: " + str(poll_time_dt))
     scheduler.add_job(
         id=f"{len(running)}_reminder",
         func=train.reminder_notification,
@@ -103,6 +104,7 @@ def issue_train(p, t):
         minute=reminder_time_dt.minute,
     )
     jobs.append(f"{len(running)}_reminder")
+    app.logger.error("reminder time: " + str(reminder_time_dt))
     scheduler.add_job(
         id=f"{len(running)}_clear",
         func=train.clear_train,
@@ -112,6 +114,7 @@ def issue_train(p, t):
         minute=clear_time_dt.minute,
     )
     jobs.append(f"{len(running)}_clear")
+    app.logger.error("clear time: " + str(clear_time_dt))
 
     app.logger.error(jobs)
 
