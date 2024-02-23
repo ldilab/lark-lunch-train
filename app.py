@@ -20,6 +20,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from flask_apscheduler import APScheduler
 
+from src import running
 from src.keyword import detect
 from src.train import Train, Running, Passenger
 from src.utils.api import MessageApiClient
@@ -55,8 +56,7 @@ dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 GROUP_ID = os.getenv("GROUP_ID")
 
-running = []
-jobs = []
+
 
 # load from env
 APP_ID = os.getenv("APP_ID")
@@ -96,7 +96,7 @@ def main():
 
 
 def issue_train(p, t):
-    if len(running) > 5:
+    if len(running) > 0:
         return "Too many trains running", 400
     t_dt = datetime.strptime(t, '%H:%M')
     now_dt = datetime.now(tz=local_tz)
@@ -116,21 +116,21 @@ def issue_train(p, t):
     train = Train(launch_time, poll_time, reminder_time, clear_time, GROUP_ID, destination)
     train.logger = app.logger
     scheduler.add_job(
-        id=f"{len(running)}_poll_start",
+        id=f"poll_start",
         func=train.onboarding_notification,
         trigger='date',
         run_date=poll_time_dt,
     )
     app.logger.error("poll time: " + str(poll_time_dt))
     scheduler.add_job(
-        id=f"{len(running)}_reminder",
+        id=f"reminder",
         func=train.reminder_notification,
         trigger='date',
         run_date=reminder_time_dt,
     )
     app.logger.error("reminder time: " + str(reminder_time_dt))
     scheduler.add_job(
-        id=f"{len(running)}_clear",
+        id=f"clear",
         func=train.clear_train,
         trigger='date',
         run_date=clear_time_dt,

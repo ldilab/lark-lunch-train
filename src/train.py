@@ -3,15 +3,17 @@ from dataclasses import dataclass
 from datetime import time
 from typing import List
 
+from src import running
+
 
 @dataclass
 class Passenger:
     open_id: str = None
 
 
-
 class Train:
-    def __init__(self, poll_time: str, launch_time: str, reminder_time: str, clear_time: str, train_id: str, destination: str) -> None:
+    def __init__(self, poll_time: str, launch_time: str, reminder_time: str, clear_time: str, train_id: str,
+                 destination: str) -> None:
         self.logger = None
         self.poll_time: time = datetime.datetime.strptime(poll_time, '%H:%M').time()
         self.launch_time: time = datetime.datetime.strptime(launch_time, '%H:%M').time()
@@ -96,13 +98,10 @@ class Train:
         self.clear_passengers()
         self.init_poll_published = False
         # running.remove(self)
-
+        running.pop()
         self.logger.error(f"Train {self.train_id} to {self.destination} has been cleared")
-
-
 
 
 @dataclass
 class Running:
     train: Train = None
-
