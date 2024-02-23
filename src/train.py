@@ -50,7 +50,7 @@ class Train:
         msg = f"(INIT) Poll for train {self.train_id} to {self.destination} at {self.poll_time} has been published"
         self.message_api_client.send_text_with_open_id(
             OPEN_ID,
-            f'{"text":"{msg}"}'
+            '{"text":"' + msg + '"}'
         )
 
     def update_passenger(self, passenger: Passenger) -> None:
@@ -86,7 +86,7 @@ class Train:
         msg = f"(REMIND) Train {self.train_id} to {self.destination} will be launched at {self.launch_time}"
         self.message_api_client.send_text_with_open_id(
             OPEN_ID,
-            f'{"text":"{msg}"}'
+            '{"text":"' + msg + '"}'
         )
 
     def launch_notification(self) -> None:
@@ -97,7 +97,7 @@ class Train:
         msg = f"(LAUNCH) Train {self.train_id} to {self.destination} has been launched"
         self.message_api_client.send_text_with_open_id(
             OPEN_ID,
-            f'{"text":"{msg}"}'
+            '{"text":"' + msg + '"}'
         )
 
     def clear_passengers(self) -> None:
@@ -119,7 +119,7 @@ class Train:
         msg = f"(CLEAR) Train {self.train_id} to {self.destination} has been cleared"
         self.message_api_client.send_text_with_open_id(
             OPEN_ID,
-            f'{"text":"{msg}"}'
+            '{"text":"' + msg + '"}'
         )
 
 
