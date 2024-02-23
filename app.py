@@ -156,8 +156,8 @@ def update_passenger():
     action = request.json['action'].get('value', "")
     user_info = message_api_client.get_user_info(user_id)
     name = user_info.get('name', "")
-    app.logger.error(user_info)
     user = Passenger(user_id, name)
+    app.logger.error(f"User: {user.user_name}, user_id: {user.open_id}, action: {action}")
     if action == "on":
         running[0].update_passenger(user)
     elif action == "off":
