@@ -7,6 +7,7 @@ from os.path import join, dirname
 from typing import Tuple
 
 import flask
+import pytz
 import requests
 from apscheduler.executors.pool import ProcessPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -25,16 +26,19 @@ from src.utils.decrypt import AESCipher
 from src.utils.event import EventManager, UrlVerificationEvent, MessageReceiveEvent
 
 app = Flask(__name__)
+# Set your desired timezone
+desired_timezone = "Asia/Seoul"  # Change this to your desired timezone
+local_tz = pytz.timezone(desired_timezone)
 executors = {
-             'default': {'type': 'threadpool', 'max_workers': 20},
-             'processpool': ProcessPoolExecutor(max_workers=5)
-            }
+    'default': {'type': 'threadpool', 'max_workers': 20},
+    'processpool': ProcessPoolExecutor(max_workers=5)
+}
 job_defaults = {
-                'coalesce': False,
-                'max_instances': 3
-               }
+    'coalesce': False,
+    'max_instances': 3
+}
 scheduler = APScheduler(
-    scheduler=BackgroundScheduler(executors=executors, job_defaults=job_defaults, timezone="Asia/Seoul"),
+    scheduler=BackgroundScheduler(executors=executors, job_defaults=job_defaults, timezone=desired_timezone),
     app=app
 )
 
@@ -53,6 +57,11 @@ APP_SECRET = os.getenv("APP_SECRET")
 VERIFICATION_TOKEN = os.getenv("VERIFICATION_TOKEN")
 ENCRYPT_KEY = os.getenv("ENCRYPT_KEY")
 LARK_HOST = os.getenv("LARK_HOST")
+
+
+@app.context_processor
+def inject_timezone():
+    return {'datetime': datetime.now(local_tz)}
 
 
 @app.route("/", methods=['POST'])
@@ -122,7 +131,6 @@ def issue_train(p, t):
     app.logger.error("clear time: " + str(clear_time_dt))
 
     app.logger.error(scheduler.get_jobs())
-
 
     return "Train issued", 200
 
