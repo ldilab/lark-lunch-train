@@ -69,8 +69,7 @@ class Train:
         :return:
         """
         self.passengers.append(passenger)
-        # update message
-        raise NotImplementedError
+        self.logger.error(f"Passenger {passenger.user_name} added to train {self.train_id}")
 
     def remove_passenger(self, passenger: Passenger) -> None:
         """
@@ -78,8 +77,7 @@ class Train:
         :return:
         """
         self.passengers.remove(passenger)
-        # update message
-        raise NotImplementedError
+        self.logger.error(f"Passenger {passenger.user_name} removed from train {self.train_id}")
 
     def boarded_notification(self) -> None:
         """
@@ -94,6 +92,7 @@ class Train:
         :return:
         """
         msg = f"(REMIND) Train {self.train_id} to {self.destination} will be launched at {self.launch_time}"
+        self.logger.error(f"Reminder: {msg}")
         self.message_api_client.send_text_with_open_id(
             OPEN_ID,
             '{"text":"' + msg + '"}'
@@ -105,6 +104,7 @@ class Train:
         :return:
         """
         msg = f"(LAUNCH) Train {self.train_id} to {self.destination} has been launched"
+        self.logger.error(f"Launch: {msg}")
         self.message_api_client.send_text_with_open_id(
             OPEN_ID,
             '{"text":"' + msg + '"}'
@@ -127,6 +127,7 @@ class Train:
         # running.remove(self)
         running.pop()
         msg = f"(CLEAR) Train {self.train_id} to {self.destination} has been cleared"
+        self.logger.error(f"Clear: {msg}")
         self.message_api_client.send_text_with_open_id(
             OPEN_ID,
             '{"text":"' + msg + '"}'
