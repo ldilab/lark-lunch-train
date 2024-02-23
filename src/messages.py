@@ -118,7 +118,7 @@ def ONBOARD_MESSAGE(user_names: list[str]):
                 "tag": "plain_text",
                 "content": "❌ 약속 취소"
               },
-              "type": "primary",
+              "type": "danger",
               "multi_url": {
                 "url": "http://ldi.snu.ac.kr:18000/",
                 "pc_url": "",

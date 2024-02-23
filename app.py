@@ -145,6 +145,8 @@ def issue_train(p, t):
 
 @app.route("/passenger", methods=['GET', 'POST', 'DELETE'])
 def update_passenger():
+    dict_data = json.loads(request.data)
+    app.logger.error(dict_data)
     user_id = request.json['user_id']
     if request.method == 'POST':
         running.train.update_passenger(Passenger(user_id))
