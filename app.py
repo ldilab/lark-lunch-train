@@ -34,7 +34,8 @@ job_defaults = {
                 'max_instances': 3
                }
 scheduler = APScheduler(
-    scheduler=BackgroundScheduler(executors=executors, job_defaults=job_defaults, timezone="Asia/Seoul")
+    scheduler=BackgroundScheduler(executors=executors, job_defaults=job_defaults, timezone="Asia/Seoul"),
+    app=app
 )
 
 auth = HTTPBasicAuth()
