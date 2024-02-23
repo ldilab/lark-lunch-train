@@ -33,7 +33,7 @@ job_defaults = {
                 'coalesce': False,
                 'max_instances': 3
                }
-scheduler = BackgroundScheduler(executors=executors, job_defaults=job_defaults, timezone="KST")
+scheduler = BackgroundScheduler(executors=executors, job_defaults=job_defaults, timezone="Asia/Seoul")
 
 auth = HTTPBasicAuth()
 
