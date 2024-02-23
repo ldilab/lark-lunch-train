@@ -64,7 +64,7 @@ LARK_HOST = os.getenv("LARK_HOST")
 OPEN_ID = os.getenv("OPEN_ID")
 
 
-message_api_client = MessageApiClient(APP_ID, APP_SECRET, LARK_HOST)
+message_api_client = MessageApiClient(APP_ID, APP_SECRET, LARK_HOST, app.logger)
 
 
 @app.context_processor

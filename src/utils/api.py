@@ -12,11 +12,12 @@ MESSAGE_URI = "/open-apis/im/v1/messages"
 
 
 class MessageApiClient(object):
-    def __init__(self, app_id, app_secret, lark_host):
+    def __init__(self, app_id, app_secret, lark_host, logger):
         self._app_id = app_id
         self._app_secret = app_secret
         self._lark_host = lark_host
         self._tenant_access_token = ""
+        self.logger = logger
 
     @property
     def tenant_access_token(self):
@@ -52,6 +53,8 @@ class MessageApiClient(object):
         response = requests.post(url, req_body)
         MessageApiClient._check_error_response(response)
         self._tenant_access_token = response.json().get("tenant_access_token")
+        self.logger.error(f"tenant_access_token: {self._tenant_access_token}")
+
 
     @staticmethod
     def _check_error_response(resp):
