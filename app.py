@@ -158,14 +158,6 @@ def update_passenger():
     name = user_info.get('name', "")
     user = Passenger(user_id, name)
     app.logger.error(f"User: {user.user_name}, user_id: {user.open_id}, action: {action}")
-    if action == "on":
-        running[0].update_passenger(user)
-    elif action == "off":
-        running[0].remove_passenger(user)
-    elif action == "cancel":
-        running[0].clear_train()
-    else:
-        return "Invalid action", 400
 
     if action != "cancel":
         msg = ONBOARD_MESSAGE(
@@ -179,6 +171,15 @@ def update_passenger():
             time=running[0].launch_time.strftime('%H:%M'),
             is_str=False
         )
+
+    if action == "on":
+        running[0].update_passenger(user)
+    elif action == "off":
+        running[0].remove_passenger(user)
+    elif action == "cancel":
+        running[0].clear_train()
+    else:
+        return "Invalid action", 400
 
     app.logger.error(msg)
     return jsonify(msg)
