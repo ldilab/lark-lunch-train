@@ -143,7 +143,7 @@ def issue_train(p, t):
     return "Train issued", 200
 
 
-@app.route("/passenger", methods=['GET', 'POST', 'DELETE'])
+@app.route("/card", methods=['GET', 'POST', 'DELETE'])
 def update_passenger():
     dict_data = json.loads(request.data)
     return jsonify({
