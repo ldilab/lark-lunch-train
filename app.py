@@ -9,6 +9,7 @@ from typing import Tuple
 import flask
 import pytz
 import requests
+import tzlocal
 from apscheduler.executors.pool import ProcessPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
 from dotenv import load_dotenv
@@ -25,10 +26,15 @@ from src.utils.api import MessageApiClient
 from src.utils.decrypt import AESCipher
 from src.utils.event import EventManager, UrlVerificationEvent, MessageReceiveEvent
 
-app = Flask(__name__)
+
 # Set your desired timezone
 desired_timezone = "Asia/Seoul"  # Change this to your desired timezone
 local_tz = pytz.timezone(desired_timezone)
+# Set a default timezone (e.g., New York)
+tz = tzlocal.get_localzone()
+
+app = Flask(__name__)
+
 executors = {
     'default': {'type': 'threadpool', 'max_workers': 20},
     'processpool': ProcessPoolExecutor(max_workers=5)
