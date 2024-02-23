@@ -5,12 +5,14 @@ from datetime import time
 from typing import List
 
 from src import running
+from src.messages import ONBOARD_MESSAGE
 from src.utils.api import MessageApiClient
 
 
 @dataclass
 class Passenger:
     open_id: str = None
+    user_name: str = None
 
 
 OPEN_ID = os.getenv("OPEN_ID")
@@ -50,7 +52,7 @@ class Train:
         msg = f"(INIT) Poll for train {self.train_id} to {self.destination} at {self.poll_time} has been published"
         self.message_api_client.send_text_with_open_id(
             OPEN_ID,
-            '{"text":"' + msg + '"}'
+            ONBOARD_MESSAGE([passenger.user_name for passenger in self.passengers])
         )
 
     def update_passenger(self, passenger: Passenger) -> None:

@@ -79,6 +79,7 @@ def main():
     cipher = AESCipher(ENCRYPT_KEY)
     challenge = cipher.decrypt_string(encrypt_target)
     response = ast.literal_eval(challenge)
+    app.logger.error(response)
     event = response.get("event", {})
     message = event.get("message", {})
     content_str = message.get("content", "")
