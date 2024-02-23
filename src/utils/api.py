@@ -27,27 +27,26 @@ class MessageApiClient(object):
         self.send("open_id", open_id, "text", content)
 
     def send(self, receive_id_type, receive_id, msg_type, content):
-        # send message to user, implemented based on Feishu open api capability. doc link:
-        # https://open.feishu.cn/document/uAjLw4CM/ukTMukTMukTM/reference/im-v1/message/create
         self._authorize_tenant_access_token()
         url = "{}{}?receive_id_type={}".format(
             self._lark_host, MESSAGE_URI, receive_id_type
         )
+        self.logger.error(f"{url=}")
         headers = {
             "Content-Type": "application/json",
             "Authorization": "Bearer " + self.tenant_access_token,
         }
-
+        self.logger.error(f"{headers=}")
         req_body = {
             "receive_id": receive_id,
             "content": content,
             "msg_type": msg_type,
         }
+        self.logger.error(f"{req_body=}")
         resp = requests.post(url=url, headers=headers, json=req_body)
         MessageApiClient._check_error_response(resp)
 
     def _authorize_tenant_access_token(self):
-        # get tenant_access_token and set, implemented based on Feishu open api capability. doc link: https://open.feishu.cn/document/ukTMukTMukTM/ukDNz4SO0MjL5QzM/auth-v3/auth/tenant_access_token_internal
         url = "{}{}".format(self._lark_host, TENANT_ACCESS_TOKEN_URI)
         req_body = {"app_id": self._app_id, "app_secret": self._app_secret}
         response = requests.post(url, req_body)
