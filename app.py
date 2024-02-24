@@ -99,6 +99,14 @@ def main():
             return issue_train(_place, _time, sender_name)
     app.logger.error("others")
 
+    error_message = {"text": "Command should be in the format: '/lunchtrain [장소]에서 [시간]에 [점심/저녁/간식/커피]'"}
+    message_api_client.send(
+        "open_id",
+        sender_id,
+        msg_type="text",
+        content=json.dumps(error_message)
+    )
+
     return jsonify(response)
 
 
