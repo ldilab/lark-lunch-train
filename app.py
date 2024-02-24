@@ -167,24 +167,22 @@ def update_passenger():
     app.logger.error(f"User: {user.user_name}, user_id: {user.open_id}, action: {action}")
 
     if action != "cancel":
+        if action == "on":
+            running[0].update_passenger(user)
+        elif action == "off":
+            running[0].remove_passenger(user)
         msg = ONBOARD_MESSAGE(
             issuer=running[0].issuer,
             place=running[0].destination,
             time=running[0].launch_time.strftime('%H:%M'),
             user_names=[passenger.user_name for passenger in running[0].passengers], is_str=False
         )
-    else:
+    elif action == "cancel":
         msg = CANCEL_MESSAGE(
             place=running[0].destination,
             time=running[0].launch_time.strftime('%H:%M'),
             is_str=False
         )
-
-    if action == "on":
-        running[0].update_passenger(user)
-    elif action == "off":
-        running[0].remove_passenger(user)
-    elif action == "cancel":
         running[0].clear_train()
     else:
         return "Invalid action", 400
