@@ -1,6 +1,8 @@
 #! /usr/bin/env python3.8
 import os
 import logging
+from datetime import datetime, timedelta
+
 import requests
 
 APP_ID = os.getenv("APP_ID")
@@ -11,8 +13,10 @@ TENANT_ACCESS_TOKEN_URI = "/open-apis/auth/v3/tenant_access_token/internal"
 MESSAGE_URI = "/open-apis/im/v1/messages"
 
 
+
 class MessageApiClient(object):
     def __init__(self, app_id, app_secret, lark_host, logger):
+        self._tenant_access_refresh_time = None
         self._app_id = app_id
         self._app_secret = app_secret
         self._lark_host = lark_host
@@ -104,12 +108,37 @@ class MessageApiClient(object):
         resp = requests.post(url=url, headers=headers, json=req_body)
         MessageApiClient._check_error_response(resp)
 
+    def buzz_message(self, message_id, user_ids):
+        self._authorize_tenant_access_token()
+        url = f"{self._lark_host}{MESSAGE_URI}/{message_id}/urgent_app?user_id_type=open_id"
+        self.logger.error(f"{url=}")
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + self.tenant_access_token,
+        }
+        self.logger.error(f"{headers=}")
+        req_body = {
+            "user_id_list": user_ids
+        }
+        self.logger.error(f"{req_body=}")
+
+        resp = requests.patch(url=url, headers=headers, json=req_body)
+        MessageApiClient._check_error_response(resp)
+
+
     def _authorize_tenant_access_token(self):
+        if (self._tenant_access_token
+                and self._tenant_access_refresh_time is not None
+                and datetime.now() < self._tenant_access_refresh_time):
+            self.logger.error(f"(Not Expired Yet) tenant_access_token: {self._tenant_access_token}")
+            return
         url = "{}{}".format(self._lark_host, TENANT_ACCESS_TOKEN_URI)
         req_body = {"app_id": self._app_id, "app_secret": self._app_secret}
         response = requests.post(url, req_body)
         MessageApiClient._check_error_response(response)
         self._tenant_access_token = response.json().get("tenant_access_token")
+        self._tenant_access_token_expires = response.json().get("expire")
+        self._tenant_access_refresh_time = datetime.now() + timedelta(seconds=self._tenant_access_token_expires - 5)
         self.logger.error(f"tenant_access_token: {self._tenant_access_token}")
 
 
@@ -123,6 +152,7 @@ class MessageApiClient(object):
         if code != 0:
             logging.error(response_dict)
             raise LarkException(code=code, msg=response_dict.get("msg"))
+        return response_dict
 
 
 class LarkException(Exception):

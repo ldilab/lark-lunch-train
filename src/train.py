@@ -32,6 +32,7 @@ class Train:
         self.destination: str = destination
         self.init_poll_published = False
         self.issuer = issuer
+        self.msg_id = None
 
     def update_launch_time(self, poll_time: str) -> None:
         self.launch_time = datetime.datetime.strptime(poll_time, '%H:%M').time()
@@ -58,28 +59,37 @@ class Train:
             user_names=[passenger.user_name for passenger in self.passengers], is_str=True
         )
         self.logger.error(msg)
-        self.message_api_client.send(
+        response = self.message_api_client.send(
             receive_id_type="open_id",
             receive_id=OPEN_ID,
             msg_type="interactive",
             content=msg
         )
+        self.logger.error(response)
+        self.msg_id = response.get("data", {}).get("message_id", "")
+        self.logger.error("Msg id: " + self.msg_id)
 
     def update_passenger(self, passenger: Passenger) -> None:
         """
         This method will be called to update the passengers list
         :return:
         """
-        self.passengers.append(passenger)
-        self.logger.error(f"Passenger {passenger.user_name} added to train {self.train_id}")
+        if passenger.open_id not in [p.open_id for p in self.passengers]:
+            self.passengers.append(passenger)
+            self.logger.error(f"Passenger {passenger.user_name} added to train {self.train_id}")
+        else:
+            self.logger.error(f"Passenger {passenger.user_name} already in train {self.train_id}")
 
     def remove_passenger(self, passenger: Passenger) -> None:
         """
         This method will be called to remove the passenger from the list
         :return:
         """
-        self.passengers.remove(passenger)
-        self.logger.error(f"Passenger {passenger.user_name} removed from train {self.train_id}")
+        if passenger.open_id in [p.open_id for p in self.passengers]:
+            self.passengers.remove(passenger)
+            self.logger.error(f"Passenger {passenger.user_name} removed from train {self.train_id}")
+        else:
+            self.logger.error(f"Passenger {passenger.user_name} not in train {self.train_id}")
 
     def boarded_notification(self) -> None:
         """
@@ -95,6 +105,10 @@ class Train:
         """
         msg = f"(REMIND) Train {self.train_id} to {self.destination} will be launched at {self.launch_time}"
         self.logger.error(f"Reminder: {msg}")
+        self.message_api_client.buzz_message(
+            self.msg_id,
+            [passenger.open_id for passenger in self.passengers]
+        )
 
     def launch_notification(self) -> None:
         """
