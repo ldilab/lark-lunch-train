@@ -93,19 +93,19 @@ def main():
         content_dict = ast.literal_eval(content_str)
         keyword = detect(content_dict["text"])
         app.logger.error(f"Keyword: {keyword}")
-        if keyword:
+        if len(keyword) == 2:
             _place, _time = keyword
             app.logger.error(f"Place: {_place}, Time: {_time}")
             return issue_train(_place, _time, sender_name)
+        else:
+            error_message = {"text": keyword}
+            message_api_client.send(
+                "open_id",
+                sender_id,
+                msg_type="text",
+                content=json.dumps(error_message)
+            )
     app.logger.error("others")
-
-    error_message = {"text": "Command should be in the format: '/lunchtrain [장소]에서 [시간]에 [점심/저녁/간식/커피]'"}
-    message_api_client.send(
-        "open_id",
-        sender_id,
-        msg_type="text",
-        content=json.dumps(error_message)
-    )
 
     return jsonify(response)
 
