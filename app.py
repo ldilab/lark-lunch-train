@@ -73,6 +73,13 @@ def inject_timezone():
     return {'datetime': datetime.now(local_tz)}
 
 
+@scheduler.task('interval', id='check jobs', minutes=1)
+def my_job():
+    app.logger.error("Checking jobs")
+    for job in scheduler.get_jobs():
+        app.logger.error(job)
+
+
 @app.route("/", methods=['POST'])
 def main():
     dict_data = json.loads(request.data)
