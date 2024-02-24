@@ -106,8 +106,7 @@ class MessageApiClient(object):
             }
         self.logger.error(f"{req_body=}")
         resp = requests.post(url=url, headers=headers, json=req_body)
-        MessageApiClient._check_error_response(resp)
-        return resp
+        return MessageApiClient._check_error_response(resp)
 
     def buzz_message(self, message_id, user_ids):
         self._authorize_tenant_access_token()
