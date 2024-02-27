@@ -1,7 +1,7 @@
 #! /usr/bin/env python3.8
 import os
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from typing import List, Dict
 
 import requests
@@ -58,6 +58,9 @@ class MessageApiClient(object):
         req_body = {
             "open_ids": open_ids,
             "msg_type": "interactive",
+            "content": {
+                "share_chat_id": datetime.now().strftime("%Y%m%d%H%M%S"),
+            },
             "card": card_content
         }
         resp = requests.post(
