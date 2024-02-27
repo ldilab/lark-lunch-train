@@ -60,12 +60,12 @@ class MessageApiClient(object):
             "msg_type": "interactive",
             "card": card_content
         }
-        response = requests.post(
+        resp = requests.post(
             url,
             headers=headers,
             json=req_body
         )
-        return response.json()
+        return MessageApiClient._check_error_response(resp)
 
 
     def get_user_info(self, open_id):
