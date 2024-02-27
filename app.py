@@ -188,7 +188,7 @@ def update_passenger():
         elif action == "off":
             running[0].remove_passenger(user)
         msg = ONBOARD_MESSAGE(
-            issuer=running[0].issuer,
+            issuer=running[0].issuer.name,
             place=running[0].destination,
             time=running[0].launch_time.strftime('%H:%M'),
             user_names=[passenger.user_name for passenger in running[0].passengers], is_str=False
