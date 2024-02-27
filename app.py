@@ -103,7 +103,7 @@ def main():
         if len(keyword) == 2:
             _place, _time = keyword
             app.logger.error(f"Place: {_place}, Time: {_time}")
-            return issue_train(_place, _time, sender_name)
+            return issue_train(_place, _time, Passenger(sender_id, sender_name))
         else:
             error_message = {"text": keyword}
             message_api_client.send(
@@ -117,7 +117,7 @@ def main():
     return jsonify(response)
 
 
-def issue_train(p, t, issuer: str):
+def issue_train(p, t, issuer: Passenger):
     if len(running) > 0:
         return "Too many trains running", 400
     t_dt = datetime.strptime(t, '%H:%M')
@@ -181,6 +181,7 @@ def update_passenger():
     user = Passenger(user_id, name)
     app.logger.error(f"User: {user.user_name}, user_id: {user.open_id}, action: {action}")
 
+    msg_ids = running[0].msg_ids.items()
     if action != "cancel":
         if action == "on":
             running[0].update_passenger(user)
@@ -193,6 +194,15 @@ def update_passenger():
             user_names=[passenger.user_name for passenger in running[0].passengers], is_str=False
         )
     elif action == "cancel":
+        if user.open_id != running[0].issuer.open_id:
+            message_api_client.send(
+                "open_id",
+                user.open_id,
+                msg_type="text",
+                content=json.dumps({"text": "Only the issuer can cancel the train"})
+            )
+            return "Invalid action", 400
+
         msg = CANCEL_MESSAGE(
             place=running[0].destination,
             time=running[0].launch_time.strftime('%H:%M'),
@@ -204,7 +214,7 @@ def update_passenger():
 
     app.logger.error(msg)
 
-    for user_id, msg_id in running[0].msg_ids.items():
+    for user_id, msg_id in msg_ids:
         message_api_client.update_message(
             msg_id,
             json.dumps(msg)

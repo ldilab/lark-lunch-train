@@ -2,7 +2,7 @@ import datetime
 import os
 from dataclasses import dataclass
 from datetime import time
-from typing import List
+from typing import List, Union
 
 from src import running
 from src.messages import ONBOARD_MESSAGE
@@ -20,7 +20,7 @@ OPEN_ID = os.getenv("OPEN_ID")
 
 class Train:
     def __init__(self, poll_time: str, launch_time: str, reminder_time: str, clear_time: str, train_id: str,
-                 destination: str, logger, message_client: MessageApiClient, issuer: str):
+                 destination: str, logger, message_client: MessageApiClient, issuer: Passenger):
         self.logger = logger
         self.message_api_client = message_client
         self.poll_time: time = datetime.datetime.strptime(poll_time, '%H:%M').time()
@@ -53,7 +53,7 @@ class Train:
         """
         self.init_poll_published = True
         msg = ONBOARD_MESSAGE(
-            issuer=self.issuer,
+            issuer=self.issuer.user_name,
             place=self.destination,
             time=self.launch_time.strftime('%H:%M'),
             user_names=[passenger.user_name for passenger in self.passengers], is_str=True
