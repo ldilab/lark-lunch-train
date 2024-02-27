@@ -26,9 +26,6 @@ class MessageApiClient(object):
         self.logger = logger
 
     def get_department_users(self, department_id: str) -> List[str]:
-        test_ids = os.getenv("OPEN_IDS")
-        return test_ids.split(",")
-
         self._authorize_tenant_access_token()
         url = f"{self._lark_host}/open-apis/contact/v3/users/find_by_department?department_id={department_id}"
         headers = {
@@ -45,7 +42,9 @@ class MessageApiClient(object):
         if filter_ids:
             filter_ids = filter_ids.split(",")
             department_user_ids = [d for d in department_user_ids if d not in filter_ids]
-
+        self.logger.error(f"Department User IDs: {department_user_ids}")
+        self.logger.error(f"Filter IDs: {filter_ids}")
+        return []
         return data
 
     def batch_send_card(self, open_ids: List[str], card_content: Dict[str, str]):
