@@ -25,7 +25,7 @@ class MessageApiClient(object):
         self._lark_host = lark_host
         self._tenant_access_token = ""
         self.logger = logger
-        self.open_id = os.getenv("OPEN_ID").split(",")[0]
+        self.open_id = OPEN_IDS.split(",")[0]
 
     def get_department_users(self, department_id: str) -> List[str]:
         self._authorize_tenant_access_token()
