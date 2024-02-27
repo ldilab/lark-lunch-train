@@ -44,8 +44,8 @@ class MessageApiClient(object):
             department_user_ids = [d for d in department_user_ids if d not in filter_ids]
         self.logger.error(f"Department User IDs: {department_user_ids}")
         self.logger.error(f"Filter IDs: {filter_ids}")
-        return []
-        return data
+
+        return department_user_ids
 
     def batch_send_card(self, open_ids: List[str], card_content: Dict[str, str]):
         self._authorize_tenant_access_token()
