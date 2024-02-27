@@ -64,6 +64,10 @@ ENCRYPT_KEY = os.getenv("ENCRYPT_KEY")
 LARK_HOST = os.getenv("LARK_HOST")
 OPEN_ID = os.getenv("OPEN_ID")
 
+POLL_TIME_AFTER_SECONDS = int(os.getenv("POLL_TIME_AFTER_SECONDS"))
+REMINDER_TIME_BEFORE_MINUTES = int(os.getenv("REMINDER_TIME_BEFORE_MINUTES"))
+CLEAR_TIME_AFTER_MINUTES = int(os.getenv("CLEAR_TIME_AFTER_MINUTES"))
+
 
 message_api_client = MessageApiClient(APP_ID, APP_SECRET, LARK_HOST, app.logger)
 
@@ -124,9 +128,9 @@ def issue_train(p, t, issuer: Passenger):
     now_dt = datetime.now(tz=local_tz)
     launch_time_dt = local_tz.localize(datetime(now_dt.year, now_dt.month, now_dt.day, t_dt.hour, t_dt.minute))
 
-    poll_time_dt = now_dt + timedelta(seconds=10)
-    reminder_time_dt = launch_time_dt - timedelta(minutes=1)
-    clear_time_dt = launch_time_dt + timedelta(minutes=1)
+    poll_time_dt = now_dt + timedelta(seconds=POLL_TIME_AFTER_SECONDS)
+    reminder_time_dt = launch_time_dt - timedelta(minutes=REMINDER_TIME_BEFORE_MINUTES)
+    clear_time_dt = launch_time_dt + timedelta(minutes=CLEAR_TIME_AFTER_MINUTES)
 
     launch_time = launch_time_dt.strftime('%H:%M')
     poll_time = poll_time_dt.strftime('%H:%M')
