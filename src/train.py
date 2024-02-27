@@ -56,7 +56,7 @@ class Train:
             issuer=self.issuer,
             place=self.destination,
             time=self.launch_time.strftime('%H:%M'),
-            user_names=[passenger.user_name for passenger in self.passengers], is_str=False
+            user_names=[passenger.user_name for passenger in self.passengers], is_str=True
         )
         self.logger.error(msg)
         user_ids = self.message_api_client.get_department_users(str(os.getenv("DEPARTMENT_ID")))
