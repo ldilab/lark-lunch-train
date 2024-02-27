@@ -2,6 +2,7 @@
 import os
 import logging
 from datetime import datetime, timedelta
+from typing import List, Dict
 
 import requests
 
@@ -11,6 +12,7 @@ APP_SECRET = os.getenv("APP_SECRET")
 # const
 TENANT_ACCESS_TOKEN_URI = "/open-apis/auth/v3/tenant_access_token/internal"
 MESSAGE_URI = "/open-apis/im/v1/messages"
+BATCH_MESSAGE_URI = "/open-apis/message/v4/batch_send"
 
 
 
@@ -22,6 +24,46 @@ class MessageApiClient(object):
         self._lark_host = lark_host
         self._tenant_access_token = ""
         self.logger = logger
+
+    def get_department_users(self, department_id: str) -> List[str]:
+        self._authorize_tenant_access_token()
+        url = f"{self._lark_host}/open-apis/contact/v3/users/find_by_department?department_id={department_id}"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + self.tenant_access_token,
+        }
+        response = requests.get(
+            url,
+            headers=headers
+        )
+        data = response.json().get("data", {}).get("items", [])
+        department_user_ids = [d["open_id"] for d in data]
+        filter_ids = os.getenv("FILTER_IDS")
+        if filter_ids:
+            filter_ids = filter_ids.split(",")
+            department_user_ids = [d for d in department_user_ids if d not in filter_ids]
+
+        return data
+
+    def batch_send_card(self, open_ids: List[str], card_content: Dict[str, str]):
+        self._authorize_tenant_access_token()
+        url = f"{self._lark_host}{BATCH_MESSAGE_URI}"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + self.tenant_access_token,
+        }
+        req_body = {
+            "open_ids": open_ids,
+            "msg_type": "interactive",
+            "card": card_content
+        }
+        response = requests.post(
+            url,
+            headers=headers,
+            json=req_body
+        )
+        return response.json()
+
 
     def get_user_info(self, open_id):
         self._authorize_tenant_access_token()
