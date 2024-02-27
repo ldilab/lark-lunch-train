@@ -207,7 +207,7 @@ def update_passenger():
     for user_id, msg_id in running[0].msg_ids.items():
         message_api_client.update_message(
             msg_id,
-            msg
+            json.dumps(msg)
         )
 
     return jsonify(msg)
