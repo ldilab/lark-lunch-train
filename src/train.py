@@ -59,11 +59,10 @@ class Train:
             user_names=[passenger.user_name for passenger in self.passengers], is_str=True
         )
         self.logger.error(msg)
-        response = self.message_api_client.send(
-            receive_id_type="open_id",
-            receive_id=OPEN_ID,
-            msg_type="interactive",
-            content=msg
+        user_ids = self.message_api_client.get_department_users("0")
+        response = self.message_api_client.batch_send_card(
+            open_ids=user_ids,
+            card_content=msg
         )
         self.logger.error(response)
         self.msg_id = response.get("data", {}).get("message_id", "")

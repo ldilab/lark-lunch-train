@@ -26,6 +26,9 @@ class MessageApiClient(object):
         self.logger = logger
 
     def get_department_users(self, department_id: str) -> List[str]:
+        test_ids = os.getenv("OPEN_IDS")
+        return test_ids.split(",")
+
         self._authorize_tenant_access_token()
         url = f"{self._lark_host}/open-apis/contact/v3/users/find_by_department?department_id={department_id}"
         headers = {
@@ -86,11 +89,11 @@ class MessageApiClient(object):
             "Content-Type": "application/json",
             "Authorization": "Bearer " + self.tenant_access_token,
         }
-        response = requests.post(
+        resp = requests.post(
             url,
             headers=headers
         )
-        return response.json()
+        return MessageApiClient._check_error_response(resp)
 
     @property
     def tenant_access_token(self):
