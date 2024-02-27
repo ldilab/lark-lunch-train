@@ -32,6 +32,7 @@ class Train:
         self.destination: str = destination
         self.init_poll_published = False
         self.issuer = issuer
+        self.passengers.append(issuer)
         self.msg_ids = {}
 
     def update_launch_time(self, poll_time: str) -> None:
