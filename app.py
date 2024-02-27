@@ -204,10 +204,11 @@ def update_passenger():
 
     app.logger.error(msg)
 
-    message_api_client.update_message(
-        running[0].msg_id,
-        msg
-    )
+    for user_id, msg_id in running[0].msg_ids.items():
+        message_api_client.update_message(
+            msg_id,
+            msg
+        )
 
     return jsonify(msg)
 

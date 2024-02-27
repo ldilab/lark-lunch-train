@@ -32,7 +32,7 @@ class Train:
         self.destination: str = destination
         self.init_poll_published = False
         self.issuer = issuer
-        self.msg_id = None
+        self.msg_ids = {}
 
     def update_launch_time(self, poll_time: str) -> None:
         self.launch_time = datetime.datetime.strptime(poll_time, '%H:%M').time()
@@ -59,14 +59,18 @@ class Train:
             user_names=[passenger.user_name for passenger in self.passengers], is_str=False
         )
         self.logger.error(msg)
-        user_ids = self.message_api_client.get_department_users("0")
-        response = self.message_api_client.batch_send_card(
-            open_ids=user_ids,
-            card_content=msg
-        )
-        self.logger.error(response)
-        self.msg_id = response.get("data", {}).get("message_id", "")
-        self.logger.error("Msg id: " + self.msg_id)
+        user_ids = self.message_api_client.get_department_users(str(os.getenv("DEPARTMENT_ID")))
+        for user_id in user_ids:
+            response = self.message_api_client.send(
+                receive_id_type="open_id",
+                receive_id=user_id,
+                msg_type="interactive",
+                content=msg
+            )
+            self.logger.error(response)
+            msg_id = response.get("data", {}).get("message_id", "")
+            self.logger.error("Msg id: " + msg_id)
+            self.msg_ids[user_id] = msg_id
 
     def update_passenger(self, passenger: Passenger) -> None:
         """
@@ -104,10 +108,11 @@ class Train:
         """
         msg = f"(REMIND) Train {self.train_id} to {self.destination} will be launched at {self.launch_time}"
         self.logger.error(f"Reminder: {msg}")
-        self.message_api_client.buzz_message(
-            self.msg_id,
-            [passenger.open_id for passenger in self.passengers]
-        )
+        for passenger in self.passengers:
+            self.message_api_client.buzz_message(
+                self.msg_ids.get(passenger.open_id, ""),
+                [passenger.open_id]
+            )
 
     def launch_notification(self) -> None:
         """
@@ -123,6 +128,7 @@ class Train:
         :return:
         """
         self.passengers = []
+        self.msg_ids = {}
 
     def clear_train(self) -> None:
         """
