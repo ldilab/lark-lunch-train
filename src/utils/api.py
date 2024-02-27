@@ -8,7 +8,6 @@ import requests
 
 APP_ID = os.getenv("APP_ID")
 APP_SECRET = os.getenv("APP_SECRET")
-OPEN_IDS = os.getenv("OPEN_IDS")
 
 # const
 TENANT_ACCESS_TOKEN_URI = "/open-apis/auth/v3/tenant_access_token/internal"
@@ -25,14 +24,13 @@ class MessageApiClient(object):
         self._lark_host = lark_host
         self._tenant_access_token = ""
         self.logger = logger
-        self.open_id = OPEN_IDS.split(",")[0]
 
     def get_department_users(self, department_id: str) -> List[str]:
         self._authorize_tenant_access_token()
         url = f"{self._lark_host}/open-apis/contact/v3/users/find_by_department?department_id={department_id}"
         headers = {
             "Content-Type": "application/json",
-            "Authorization": "Bearer " + self.open_id,
+            "Authorization": "Bearer " + self.tenant_access_token,
         }
         response = requests.get(
             url,
