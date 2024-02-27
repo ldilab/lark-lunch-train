@@ -10,6 +10,9 @@ def ONBOARD_MESSAGE(
     user_names = [f"@{user}" for user in user_names]
     users = ", ".join(user_names)
     card_obj = {
+        "config": {
+            "update_multi": True
+        },
         "header": {
             "template": "blue",
             "title": {
@@ -127,6 +130,9 @@ def ONBOARD_MESSAGE(
 
 def CANCEL_MESSAGE(place, time, is_str):
     card_obj = {
+        "config": {
+            "update_multi": True
+        },
         "header": {
             "template": "red",
             "title": {
