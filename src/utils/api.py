@@ -189,6 +189,18 @@ class MessageApiClient(object):
         self._tenant_access_refresh_time = datetime.now() + timedelta(seconds=self._tenant_access_token_expires - 5)
         self.logger.error(f"tenant_access_token: {self._tenant_access_token}")
 
+    def update_message(self, message_id, content):
+        self._authorize_tenant_access_token()
+        url = f"{self._lark_host}{MESSAGE_URI}/{message_id}"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + self.tenant_access_token,
+        }
+        req_body = {
+            "content": content
+        }
+        resp = requests.patch(url, headers=headers, json=req_body)
+        return MessageApiClient._check_error_response(resp)
 
     @staticmethod
     def _check_error_response(resp):

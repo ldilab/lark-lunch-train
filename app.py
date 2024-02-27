@@ -203,6 +203,12 @@ def update_passenger():
         return "Invalid action", 400
 
     app.logger.error(msg)
+
+    message_api_client.update_message(
+        running[0].msg_id,
+        msg
+    )
+
     return jsonify(msg)
 
 
