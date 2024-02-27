@@ -123,6 +123,15 @@ def main():
 
 def issue_train(p, t, issuer: Passenger):
     if len(running) > 0:
+        message_api_client.send(
+            "open_id",
+            issuer.open_id,
+            msg_type="text",
+            content=json.dumps({
+                "text": f"There is already a train running. "
+                        f"(Train: [to] {running[0].destination} [at] {running[0].launch_time.strftime('%H:%M')})"
+            })
+        )
         return "Too many trains running", 400
     t_dt = datetime.strptime(t, '%H:%M')
     now_dt = datetime.now(tz=local_tz)
