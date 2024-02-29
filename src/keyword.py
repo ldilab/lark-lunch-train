@@ -3,10 +3,10 @@ from typing import Union, Tuple
 
 def detect(s: str) -> Union[None, str, tuple[str, str]]:
     if not s.startswith("/lunchtrain"):
-        return "Invalid format. Please use `/lunchtrain` [place]에서 [time]에."
+        return "Invalid format. Please use `/lunchtrain` [place]에서 [time]에 [점심/저녁]."
 
     if not ("에" in s and "에서" in s):
-        return "Invalid format. Please use /lunchtrain [place]`에서` [time]`에`."
+        return "Invalid format. Please use /lunchtrain [place]`에서` [time]`에` [점심/저녁]."
 
     s = s.split("/lunchtrain")[1].strip()
     eh_index = s.index("에 ")
