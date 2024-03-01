@@ -77,7 +77,7 @@ def inject_timezone():
     return {'datetime': datetime.now(local_tz)}
 
 
-@scheduler.task('interval', id='check jobs', minutes=1)
+@scheduler.task('interval', id='check jobs', minutes=15)
 def my_job():
     app.logger.error("Checking jobs")
     for job in scheduler.get_jobs():
