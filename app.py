@@ -182,6 +182,7 @@ def issue_train(p, t, issuer: Passenger):
 @app.route("/card", methods=['POST'])
 def update_passenger():
     dict_data = json.loads(request.data)
+    app.logger.error(dict_data)
     if dict_data.get("challenge"):
         return jsonify({
             "challenge": dict_data.get("challenge")
