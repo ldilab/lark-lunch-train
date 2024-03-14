@@ -61,7 +61,9 @@ class Train:
         )
         self.logger.error(msg)
         user_ids = self.message_api_client.get_department_users(str(os.getenv("DEPARTMENT_ID")))
+        self.logger.error("sending message to: " + str(user_ids))
         for user_id in user_ids:
+            self.logger.error(user_id)
             response = self.message_api_client.send(
                 receive_id_type="open_id",
                 receive_id=user_id,
