@@ -27,7 +27,7 @@ class MessageApiClient(object):
 
     def get_department_users(self, department_id: str) -> List[str]:
         self._authorize_tenant_access_token()
-        url = f"{self._lark_host}/open-apis/contact/v3/users/find_by_department?department_id={department_id}"
+        url = f"{self._lark_host}/open-apis/contact/v3/users/find_by_department?department_id={department_id}&page_size=50"
         headers = {
             "Content-Type": "application/json",
             "Authorization": "Bearer " + self.tenant_access_token,
