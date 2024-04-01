@@ -5,7 +5,8 @@ from datetime import time
 from typing import List, Union
 
 from src import running
-from src.messages import ONBOARD_MESSAGE
+from src.lark.message.templates import ONBOARD_MESSAGE
+
 from src.utils.api import MessageApiClient
 
 
