@@ -1,5 +1,5 @@
 import logging
-from typing import Dict
+from typing import Dict, List
 
 import requests
 from furl import furl
@@ -32,6 +32,22 @@ class BaseApiClient(object):
     ):
         response = requests.get(url, headers=headers)
         return self._check_error_response(response)
+
+    def _bulk_post_request(
+            self,
+            request_targets: List[Dict[str, str]],
+    ):
+        responses = []
+        for target in request_targets:
+            if "url" not in target:
+                raise ValueError("URL is required in request target")
+            url = target.get("url")
+            headers = target.get("headers", {})
+            body = target.get("body", {})
+            response = self._post_request(url, headers, body)
+            responses.append(self._check_error_response(response))
+
+        return responses
 
     @staticmethod
     def _check_error_response(resp):
