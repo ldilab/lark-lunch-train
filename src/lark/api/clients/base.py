@@ -1,5 +1,5 @@
 import logging
-from typing import Dict
+from typing import Dict, List, Union
 
 import requests
 from furl import furl
@@ -7,7 +7,7 @@ from furl import furl
 from src.lark.api.exception import LarkException
 
 
-class BaseApiClient(object):
+class BaseApiClient:
     def __init__(self, app_id, app_secret, lark_host, logger):
         self._tenant_access_refresh_time = None
         self._app_id = app_id
@@ -25,6 +25,15 @@ class BaseApiClient(object):
         resp = requests.post(url, headers=headers, json=body)
         return self._check_error_response(resp)
 
+    def _patch_request(
+            self,
+            url: str,
+            headers: Dict[str, str],
+            body: Dict[str, str],
+    ):
+        resp = requests.patch(url, headers=headers, json=body)
+        return self._check_error_response(resp)
+
     def _get_request(
             self,
             url: str,
@@ -32,6 +41,38 @@ class BaseApiClient(object):
     ):
         response = requests.get(url, headers=headers)
         return self._check_error_response(response)
+
+    def _bulk_post_request(
+            self,
+            request_targets: List[Dict[str, Union[str, Dict[str, str]]]],
+    ):
+        responses = []
+        for target in request_targets:
+            if "url" not in target:
+                raise ValueError("URL is required in request target")
+            url = target.get("url")
+            headers = target.get("headers", {})
+            body = target.get("body", {})
+            response = self._post_request(url, headers, body)
+            responses.append(self._check_error_response(response))
+
+        return responses
+
+    def _bulk_patch_request(
+            self,
+            request_targets: List[Dict[str, Union[str, Dict[str, str]]]],
+    ):
+        responses = []
+        for target in request_targets:
+            if "url" not in target:
+                raise ValueError("URL is required in request target")
+            url = target.get("url")
+            headers = target.get("headers", {})
+            body = target.get("body", {})
+            response = self._patch_request(url, headers, body)
+            responses.append(self._check_error_response(response))
+
+        return responses
 
     @staticmethod
     def _check_error_response(resp):
