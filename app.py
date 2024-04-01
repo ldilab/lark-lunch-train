@@ -22,11 +22,10 @@ from flask_apscheduler import APScheduler
 
 from src import running
 from src.keyword import detect
-from src.messages import ONBOARD_MESSAGE, CANCEL_MESSAGE
+from src.lark.message.templates import ONBOARD_MESSAGE, CANCEL_MESSAGE
 from src.train import Train, Running, Passenger
 from src.utils.api import MessageApiClient
 from src.utils.decrypt import AESCipher
-from src.utils.event import EventManager, UrlVerificationEvent, MessageReceiveEvent
 
 
 # Set your desired timezone
