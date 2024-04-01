@@ -5,9 +5,10 @@ from datetime import time
 from typing import List, Union
 
 from src import running
+from src.lark.api.client import LarkClient
 from src.lark.message.templates import ONBOARD_MESSAGE
 
-from src.utils.api import MessageApiClient
+
 
 
 @dataclass
@@ -21,7 +22,7 @@ OPEN_ID = os.getenv("OPEN_ID")
 
 class Train:
     def __init__(self, poll_time: str, launch_time: str, reminder_time: str, clear_time: str, train_id: str,
-                 destination: str, logger, message_client: MessageApiClient, issuer: Passenger):
+                 destination: str, logger, message_client: LarkClient, issuer: Passenger):
         self.logger = logger
         self.message_api_client = message_client
         self.poll_time: time = datetime.datetime.strptime(poll_time, '%H:%M').time()
@@ -61,15 +62,13 @@ class Train:
             user_names=[passenger.user_name for passenger in self.passengers], is_str=True
         )
         self.logger.error(msg)
-        user_ids = self.message_api_client.get_department_users(str(os.getenv("DEPARTMENT_ID")))
+        user_ids = self.message_api_client.get_department_user_ids(str(os.getenv("DEPARTMENT_ID")))
         self.logger.error("sending message to: " + str(user_ids))
         for user_id in user_ids:
             self.logger.error(user_id)
-            response = self.message_api_client.send(
-                receive_id_type="open_id",
-                receive_id=user_id,
-                msg_type="interactive",
-                content=msg
+            response = self.message_api_client.send_card_with_open_id(
+                open_id=user_id,
+                card_content=msg
             )
             self.logger.error(response)
             msg_id = response.get("data", {}).get("message_id", "")
@@ -113,7 +112,7 @@ class Train:
         msg = f"(REMIND) Train {self.train_id} to {self.destination} will be launched at {self.launch_time}"
         self.logger.error(f"Reminder: {msg}")
         for passenger in self.passengers:
-            self.message_api_client.buzz_message(
+            self.message_api_client.buzz_message_with_open_id(
                 self.msg_ids.get(passenger.open_id, ""),
                 [passenger.open_id]
             )

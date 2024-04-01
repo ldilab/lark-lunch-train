@@ -34,3 +34,5 @@ urllib3==2.2.1
 wcwidth==0.2.13
 Werkzeug==3.0.1
 zipp==3.17.0
+
+furl~=2.1.3
