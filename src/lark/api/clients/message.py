@@ -1,8 +1,9 @@
 import json
 from datetime import datetime
-from typing import List, Dict
+from typing import List, Dict, Union
 
 import requests
+from furl import furl
 
 from src.lark.api import BATCH_MESSAGE_URI, MESSAGE_URI
 from src.lark.api.clients.auth import AuthenticationApiClient
@@ -11,23 +12,42 @@ from src.lark.utils.dtypes import MessageType, ReceiveIdType
 
 class MessageApiClient(AuthenticationApiClient):
     # ============= SEND ============= #
+    @staticmethod
+    def _build_send_objects(
+            url: furl,
+            receive_id_type: ReceiveIdType,
+            bodies: List[Dict[str, Union[str, Dict[str, str]]]]
+    ) -> List[Dict[str, Union[str, Dict[str, str]]]]:
+        objects = []
+        for body in bodies:
+            url.args["receive_id_type"] = receive_id_type.value
+            objects.append({
+                "url": url,
+                "body": body
+            })
+        return objects
+
     def _send(self, receive_id_type: ReceiveIdType, receive_id, msg_type: MessageType, content):
         self._authorize_tenant_access_token()
-        url = self._lark_host / MESSAGE_URI
-        url.args["receive_id_type"] = receive_id_type.value
-        self.logger.error(f"{url=}")
+        send_objects = self._build_send_objects(
+            url=self._lark_host / MESSAGE_URI,
+            receive_id_type=receive_id_type,
+            bodies=[{
+                "receive_id": receive_id,
+                "msg_type": msg_type.value,
+                "content": json.dumps(content)
+            }]
+        )
         headers = {
             "Content-Type": "application/json",
             "Authorization": "Bearer " + self.tenant_access_token,
         }
-        self.logger.error(f"{headers=}")
-        req_body = {
-            "receive_id": receive_id,
-            "content": json.dumps(content),
-            "msg_type": msg_type.value,
-        }
-        self.logger.error(f"{req_body=}")
-        return self._post_request(url, headers, req_body)
+        for send_object in send_objects:
+            send_object["headers"] = headers
+
+        responses = self._bulk_post_request(send_objects)
+        assert len(responses) == 1
+        return responses[0]
 
     def send_open_id(self, open_id, msg_type: MessageType, content):
         return self._send(ReceiveIdType.OPEN_ID, open_id, msg_type, content)
@@ -46,7 +66,16 @@ class MessageApiClient(AuthenticationApiClient):
 
     # ************* BULK SEND ************* #
     def bulk_send(self, receive_id_type: ReceiveIdType, receive_ids, msg_type: MessageType, content):
-        raise NotImplementedError
+        send_objects = self._build_send_objects(
+            url=self._lark_host / MESSAGE_URI,
+            receive_id_type=receive_id_type,
+            bodies=[{
+                "receive_id": receive_id,
+                "msg_type": msg_type.value,
+                "content": json.dumps(content)
+            } for receive_id in receive_ids]
+        )
+        return self._bulk_post_request(send_objects)
 
     def bulk_send_with_open_ids(self, open_ids, msg_type: MessageType, content):
         self.bulk_send(ReceiveIdType.OPEN_ID, open_ids, msg_type, content)
@@ -66,40 +95,65 @@ class MessageApiClient(AuthenticationApiClient):
     # ============= BUZZ ============= #
     def buzz_message_with_open_id(self, message_id, user_ids):
         self._authorize_tenant_access_token()
-        url = self._lark_host / MESSAGE_URI / message_id / "urgent_app"
-        url.args["user_id_type"] = "open_id"
-        self.logger.error(f"{url=}")
+        buzz_objects = self._build_send_objects(
+            url=self._lark_host / MESSAGE_URI / message_id / "urgent_app",
+            receive_id_type=ReceiveIdType.OPEN_ID,
+            bodies=[{
+                "user_id_list": user_ids
+            }]
+        )
 
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + self.tenant_access_token,
-        }
-        self.logger.error(f"{headers=}")
+        for buzz_object in buzz_objects:
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + self.tenant_access_token,
+            }
+            buzz_object["headers"] = headers
 
-        req_body = {
-            "user_id_list": user_ids
-        }
-        self.logger.error(f"{req_body=}")
-
-        resp = requests.patch(url=url, headers=headers, json=req_body)
-        return self._check_error_response(resp)
+        responses = self._bulk_post_request(buzz_objects)
+        assert len(responses) == 1
+        return responses[0]
 
     def bulk_buzz_message_with_open_ids(self, message_ids, user_ids):
-        raise NotImplementedError
+        buzz_objects = self._build_send_objects(
+            url=self._lark_host / BATCH_MESSAGE_URI / "urgent_app",
+            receive_id_type=ReceiveIdType.OPEN_ID,
+            bodies=[{
+                "message_id": message_id,
+                "user_id_list": user_ids
+            } for message_id in message_ids]
+        )
+        return self._bulk_post_request(buzz_objects)
 
     # ============= UPDATE ============= #
     def update_message(self, message_id, content):
         self._authorize_tenant_access_token()
-        url = f"{self._lark_host}{MESSAGE_URI}/{message_id}"
+
+        update_objects = self._build_send_objects(
+            url=self._lark_host / MESSAGE_URI / message_id,
+            receive_id_type=ReceiveIdType.OPEN_ID,
+            bodies=[{
+                "content": content
+            }]
+        )
         headers = {
             "Content-Type": "application/json",
             "Authorization": "Bearer " + self.tenant_access_token,
         }
-        req_body = {
-            "content": content
-        }
-        resp = requests.patch(url, headers=headers, json=req_body)
-        return self._check_error_response(resp)
+        for update_object in update_objects:
+            update_object["headers"] = headers
+
+        responses = self._bulk_patch_request(update_objects)
+        assert len(responses) == 1
+        return responses[0]
 
     def bulk_update_message(self, message_ids, content):
-        raise NotImplementedError
+        update_objects = self._build_send_objects(
+            url=self._lark_host / BATCH_MESSAGE_URI,
+            receive_id_type=ReceiveIdType.OPEN_ID,
+            bodies=[{
+                "message_id": message_id,
+                "content": content
+            } for message_id in message_ids]
+        )
+        return self._bulk_patch_request(update_objects)
