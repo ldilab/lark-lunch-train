@@ -6,8 +6,8 @@ import typing as t
 
 from flask import request, jsonify
 
-from src.utils.decrypt import AESCipher
-from src.utils.utils import dict_2_obj
+from src.lark.utils.decrypt import AESCipher
+from src.lark.utils.utils import dict_2_obj
 
 
 class Event(object):

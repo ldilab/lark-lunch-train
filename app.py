@@ -22,11 +22,10 @@ from flask_apscheduler import APScheduler
 
 from src import running
 from src.keyword import detect
+from src.lark.api.client import LarkClient
 from src.lark.message.templates import ONBOARD_MESSAGE, CANCEL_MESSAGE
+from src.lark.utils.decrypt import AESCipher
 from src.train import Train, Running, Passenger
-from src.utils.api import MessageApiClient
-from src.utils.decrypt import AESCipher
-
 
 # Set your desired timezone
 desired_timezone = "Asia/Seoul"  # Change this to your desired timezone
@@ -67,8 +66,7 @@ POLL_TIME_AFTER_SECONDS = int(os.getenv("POLL_TIME_AFTER_SECONDS"))
 REMINDER_TIME_BEFORE_MINUTES = int(os.getenv("REMINDER_TIME_BEFORE_MINUTES"))
 CLEAR_TIME_AFTER_MINUTES = int(os.getenv("CLEAR_TIME_AFTER_MINUTES"))
 
-
-message_api_client = MessageApiClient(APP_ID, APP_SECRET, LARK_HOST, app.logger)
+message_api_client = LarkClient(app_id=APP_ID, app_secret=APP_SECRET, lark_host=LARK_HOST, logger=app.logger)
 
 
 @app.context_processor
@@ -109,11 +107,9 @@ def main():
             return issue_train(_place, _time, Passenger(sender_id, sender_name))
         else:
             error_message = {"text": keyword}
-            message_api_client.send(
-                "open_id",
+            message_api_client.send_text_with_open_id(
                 sender_id,
-                msg_type="text",
-                content=json.dumps(error_message)
+                message=error_message
             )
     app.logger.error("others")
 
@@ -122,14 +118,10 @@ def main():
 
 def issue_train(p, t, issuer: Passenger):
     if len(running) > 0:
-        message_api_client.send(
-            "open_id",
+        message_api_client.send_text_with_open_id(
             issuer.open_id,
-            msg_type="text",
-            content=json.dumps({
-                "text": f"There is already a train running. "
-                        f"(Train: [to] {running[0].destination} [at] {running[0].launch_time.strftime('%H:%M')})"
-            })
+            message=f"There is already a train running. "
+                    f"(Train: [to] {running[0].destination} [at] {running[0].launch_time.strftime('%H:%M')})"
         )
         return "Too many trains running", 400
     t_dt = datetime.strptime(t, '%H:%M')
@@ -174,7 +166,6 @@ def issue_train(p, t, issuer: Passenger):
     )
     app.logger.error("clear time: " + str(clear_time_dt))
 
-
     return "Train issued", 200
 
 
@@ -208,11 +199,9 @@ def update_passenger():
         )
     elif action == "cancel":
         if user.open_id != running[0].issuer.open_id:
-            message_api_client.send(
-                "open_id",
+            message_api_client.send_text_with_open_id(
                 user.open_id,
-                msg_type="text",
-                content=json.dumps({"text": "Only the issuer can cancel the train"})
+                message="Only the issuer can cancel the train"
             )
             return "Invalid action", 400
 
