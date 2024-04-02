@@ -21,8 +21,6 @@ class MessageApiClient(AuthenticationApiClient):
         if not isinstance(urls, list):
             urls = [urls] * len(bodies)
 
-        self.logger.error(urls)
-
         for url, body in zip(urls, bodies):
             if receive_id_type:
                 url.args["receive_id_type"] = receive_id_type.value
