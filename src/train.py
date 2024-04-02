@@ -2,13 +2,12 @@ import datetime
 import os
 from dataclasses import dataclass
 from datetime import time
+from enum import Enum
 from typing import List, Union
 
-from src import running
+from src import rail
 from src.lark.api.client import LarkClient
 from src.lark.message.templates import ONBOARD_MESSAGE
-
-
 
 
 @dataclass
@@ -32,7 +31,6 @@ class Train:
         self.train_id: str = train_id
         self.passengers: List[Passenger] = []
         self.destination: str = destination
-        self.init_poll_published = False
         self.issuer = issuer
         self.passengers.append(issuer)
         self.msg_ids = {}
@@ -42,48 +40,56 @@ class Train:
         This method will be called to issue the initial poll to group members
         :return:
         """
-        self.init_poll_published = True
-        msg = ONBOARD_MESSAGE(
+        onboard_msg = ONBOARD_MESSAGE(
             issuer=self.issuer.user_name,
             place=self.destination,
             time=self.launch_time.strftime('%H:%M'),
             user_names=[passenger.user_name for passenger in self.passengers], is_str=True
         )
-        self.logger.error(msg)
-        user_ids = self.message_api_client.get_department_user_ids(str(os.getenv("DEPARTMENT_ID")))
-        self.logger.error("sending message to: " + str(user_ids))
-        for user_id in user_ids:
-            self.logger.error(user_id)
-            response = self.message_api_client.send_card_with_open_id(
-                open_id=user_id,
-                card_content=msg
-            )
-            self.logger.error(response)
-            msg_id = response.get("data", {}).get("message_id", "")
-            self.logger.error("Msg id: " + msg_id)
-            self.msg_ids[user_id] = msg_id
 
-    def update_passenger(self, passenger: Passenger) -> None:
+        user_ids = self.message_api_client.get_department_user_ids()
+        self.logger.error(f"onboarding to: \n-> {user_ids}")
+
+        responses = self.message_api_client.bulk_send_card_with_open_ids(
+            open_ids=user_ids,
+            card_content=onboard_msg
+        )
+        msg_ids = [
+            response.get("data", {}).get("message_id", "")
+            for response in responses
+        ]
+        self.msg_ids = dict(zip(user_ids, msg_ids))
+        self.logger.error(f"onboarding msgs:\n-> {self.msg_ids}")
+
+    def update_passengers(self, action: str, passenger: Passenger) -> None:
         """
         This method will be called to update the passengers list
         :return:
         """
-        if passenger.open_id not in [p.open_id for p in self.passengers]:
-            self.passengers.append(passenger)
-            self.logger.error(f"Passenger {passenger.user_name} added to train {self.train_id}")
-        else:
-            self.logger.error(f"Passenger {passenger.user_name} already in train {self.train_id}")
+        if action == "on":
+            self.add_passenger(passenger)
+        elif action == "off":
+            self.pop_passenger(passenger)
 
-    def remove_passenger(self, passenger: Passenger) -> None:
+    def add_passenger(self, passenger: Passenger) -> None:
+        if passenger.open_id in [p.open_id for p in self.passengers]:
+            self.logger.error(f"[ALREADY IN] [Passenger {passenger.user_name}]")
+            return
+
+        self.passengers.append(passenger)
+        self.logger.error(f"[ADDED] [Passenger {passenger.user_name}]")
+
+    def pop_passenger(self, passenger: Passenger) -> None:
         """
         This method will be called to remove the passenger from the list
         :return:
         """
-        if passenger.open_id in [p.open_id for p in self.passengers]:
-            self.passengers.remove(passenger)
-            self.logger.error(f"Passenger {passenger.user_name} removed from train {self.train_id}")
-        else:
-            self.logger.error(f"Passenger {passenger.user_name} not in train {self.train_id}")
+        if passenger.open_id not in [p.open_id for p in self.passengers]:
+            self.logger.error(f"[NOT IN] [Passenger {passenger.user_name}]")
+            return
+
+        self.passengers.remove(passenger)
+        self.logger.error(f"[REMOVED] [Passenger {passenger.user_name}]")
 
     def reminder_notification(self) -> None:
         """
@@ -92,11 +98,14 @@ class Train:
         """
         msg = f"(REMIND) Train {self.train_id} to {self.destination} will be launched at {self.launch_time}"
         self.logger.error(f"Reminder: {msg}")
-        for passenger in self.passengers:
-            self.message_api_client.buzz_message_with_open_id(
-                self.msg_ids.get(passenger.open_id, ""),
-                [passenger.open_id]
-            )
+
+
+        open_ids = [passenger.open_id for passenger in self.passengers]
+        msg_ids = [self.msg_ids.get(open_id, "") for open_id in open_ids]
+        self.message_api_client.bulk_buzz_message_with_open_ids(
+            message_ids=msg_ids,
+            user_ids=open_ids
+        )
 
     def clear_passengers(self) -> None:
         """
@@ -112,14 +121,5 @@ class Train:
         :return:
         """
         self.clear_passengers()
-        self.init_poll_published = False
-        # running.remove(self)
-        running.pop()
-        msg = f"(CLEAR) Train {self.train_id} to {self.destination} has been cleared"
-        self.logger.error(f"Clear: {msg}")
-        self.logger.error(f"clear {running=}")
+        rail.clear_rail(self.destination)
 
-
-@dataclass
-class Running:
-    train: Train = None

@@ -114,8 +114,8 @@ class MessageApiClient(AuthenticationApiClient):
             receive_id_type=ReceiveIdType.OPEN_ID,
             bodies=[{
                 "message_id": message_id,
-                "user_id_list": user_ids
-            } for message_id in message_ids]
+                "user_id_list": [user_id]
+            } for message_id, user_id in zip(message_ids, user_ids)]
         )
         return self._bulk_post_request(buzz_objects)
 
