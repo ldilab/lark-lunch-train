@@ -14,20 +14,20 @@ class UserApiClient(AuthenticationApiClient):
     def get_department_user_ids(self):
         url = self._lark_host / "open-apis" / "contact" / "v3" / "users" / "find_by_department"
         url.args["department_id"] = self.department_id
+        url.args["page_size"] = 50
         resp = self._get_request(
             url,
             headers=self._get_auth_headers(),
         )
-        self.logger.error(f"Department User IDs Response: {resp}")
-        self.logger.error(resp.get("data", {}))
-        self.logger.error(resp.get("user_ids", []))
-        department_user_ids = resp.get("data", {}).get("user_ids", [])
+        data = resp.get("data", {}).get("items", [])
+        department_user_ids = [d.get("open_id") for d in data]
 
         if self.filter_ids:
             department_user_ids = [d for d in department_user_ids if d not in self.filter_ids]
 
         self.logger.error(f"Department User IDs: {department_user_ids}")
         return department_user_ids
+
     def get_user_info(self, open_id):
         url = self._lark_host / "open-apis" / "contact" / "v3" / "users" / open_id
         response = self._get_request(
