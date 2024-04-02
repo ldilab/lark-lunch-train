@@ -99,10 +99,9 @@ def main():
             app.logger.error(f"Place: {_place}, Time: {_time}")
             return issue_train(_place, _time, Passenger(sender_id, sender_name))
         else:
-            error_message = {"text": keyword}
             message_api_client.send_text_with_open_id(
                 sender_id,
-                message=error_message
+                message=keyword
             )
     app.logger.error("others")
 
