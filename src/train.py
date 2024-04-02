@@ -122,5 +122,5 @@ class Train:
         :return:
         """
         self.clear_passengers()
-        rail.clear_rail(self.destination)
+        rail.clear_rail()
 

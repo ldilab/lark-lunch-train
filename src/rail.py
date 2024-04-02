@@ -15,5 +15,5 @@ class Rail:
     def is_rail_full(self):
         return self.train is not None
 
-    def clear_rail(self, logger, destination):
+    def clear_rail(self):
         self.train = None
