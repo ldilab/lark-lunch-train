@@ -12,13 +12,10 @@ class UserApiClient(AuthenticationApiClient):
 
     def get_department_user_ids(self):
         url = self._lark_host / "open-apis" / "contact" / "v3" / "department" / "user" / "list"
-        req_body = {
-            "department_id": self.department_id,
-        }
-        resp = self._post_request(
+        url.args["department_id"] = self.department_id
+        resp = self._get_request(
             url,
             headers=self._get_auth_headers(),
-            body=req_body
         )
         department_user_ids = resp.get("data", {}).get("user_ids", [])
 
