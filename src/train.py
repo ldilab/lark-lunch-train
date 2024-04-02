@@ -37,18 +37,6 @@ class Train:
         self.passengers.append(issuer)
         self.msg_ids = {}
 
-    def update_launch_time(self, poll_time: str) -> None:
-        self.launch_time = datetime.datetime.strptime(poll_time, '%H:%M').time()
-
-    def update_poll_time(self, poll_time: str) -> None:
-        self.poll_time = datetime.datetime.strptime(poll_time, '%H:%M').time()
-
-    def update_clear_time(self, poll_time: str) -> None:
-        self.clear_time = datetime.datetime.strptime(poll_time, '%H:%M').time()
-
-    def update_destination(self, destination: str) -> None:
-        self.destination = destination
-
     def onboarding_notification(self) -> None:
         """
         This method will be called to issue the initial poll to group members
@@ -97,13 +85,6 @@ class Train:
         else:
             self.logger.error(f"Passenger {passenger.user_name} not in train {self.train_id}")
 
-    def boarded_notification(self) -> None:
-        """
-        This method will be called when new passenger boards the train to notify the group members
-        :return:
-        """
-        raise NotImplementedError
-
     def reminder_notification(self) -> None:
         """
         This method will be called to remind the group members about the train
@@ -116,14 +97,6 @@ class Train:
                 self.msg_ids.get(passenger.open_id, ""),
                 [passenger.open_id]
             )
-
-    def launch_notification(self) -> None:
-        """
-        This method will be called when the train reaches the launch time to notify the group members
-        :return:
-        """
-        msg = f"(LAUNCH) Train {self.train_id} to {self.destination} has been launched"
-        self.logger.error(f"Launch: {msg}")
 
     def clear_passengers(self) -> None:
         """
