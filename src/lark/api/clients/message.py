@@ -14,15 +14,16 @@ class MessageApiClient(AuthenticationApiClient):
     def _build_send_objects(
             urls: Union[furl, List[furl]],
             bodies: List[Dict[str, any]],
-            receive_id_type: Union[None, ReceiveIdType] = None,
+            params: Union[None, Dict[str, any]] = None,
     ) -> List[Dict[str, Union[str, Dict[str, str]]]]:
         objects = []
         if not isinstance(urls, list):
             urls = [urls] * len(bodies)
 
         for url, body in zip(urls, bodies):
-            if receive_id_type:
-                url.args["receive_id_type"] = receive_id_type.value
+            if params:
+                for param_key, param_value in params.items():
+                    url.args[param_key] = param_value
 
             objects.append({
                 "url": url,
@@ -54,7 +55,9 @@ class MessageApiClient(AuthenticationApiClient):
     def bulk_send(self, receive_id_type: ReceiveIdType, receive_ids, msg_type: MessageType, content):
         send_objects = self._build_send_objects(
             urls=self._lark_host / MESSAGE_URI,
-            receive_id_type=receive_id_type,
+            params={
+                "receive_id_type": receive_id_type.value
+            },
             bodies=[{
                 "receive_id": receive_id,
                 "msg_type": msg_type.value,
@@ -95,7 +98,9 @@ class MessageApiClient(AuthenticationApiClient):
                 self._lark_host / MESSAGE_URI / message_id / "urgent_app"
                 for message_id in message_ids
             ],
-            receive_id_type=ReceiveIdType.OPEN_ID,
+            params={
+                "user_id_type": ReceiveIdType.OPEN_ID.value
+            },
             bodies=[{
                 "user_id_list": [user_id]
             } for user_id in user_ids]
