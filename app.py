@@ -8,7 +8,6 @@ from typing import Tuple
 
 import flask
 import pytz
-import requests
 import tzlocal
 from apscheduler.executors.pool import ProcessPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -16,16 +15,15 @@ from dotenv import load_dotenv
 from flask import Flask, jsonify
 from flask import request
 from flask_httpauth import HTTPBasicAuth
-from werkzeug.security import check_password_hash, generate_password_hash
 
 from flask_apscheduler import APScheduler
 
-from src import running
+from src import rail
 from src.keyword import detect
 from src.lark.api.client import LarkClient
 from src.lark.message.templates import ONBOARD_MESSAGE, CANCEL_MESSAGE
 from src.lark.utils.decrypt import AESCipher
-from src.train import Train, Running, Passenger
+from src.train import Train, Passenger
 
 # Set your desired timezone
 desired_timezone = "Asia/Seoul"  # Change this to your desired timezone
@@ -117,11 +115,11 @@ def main():
 
 
 def issue_train(p, t, issuer: Passenger):
-    if len(running) > 0:
+    if rail.is_rail_full():
         message_api_client.send_text_with_open_id(
             issuer.open_id,
             message=f"There is already a train running. "
-                    f"(Train: [to] {running[0].destination} [at] {running[0].launch_time.strftime('%H:%M')})"
+                    f"(Train: [to] {rail.train.destination} [at] {rail.train.launch_time.strftime('%H:%M')})"
         )
         return "Too many trains running", 400
     t_dt = datetime.strptime(t, '%H:%M')
@@ -143,7 +141,7 @@ def issue_train(p, t, issuer: Passenger):
         poll_time, launch_time, reminder_time, clear_time, GROUP_ID, destination, app.logger, message_api_client,
         issuer
     )
-    running.append(train)
+    rail.launch_train(train)
     scheduler.add_job(
         id=f"poll_start",
         func=train.onboarding_notification,
@@ -177,6 +175,7 @@ def update_passenger():
         return jsonify({
             "challenge": dict_data.get("challenge")
         })
+
     app.logger.error(dict_data)
     user_id = request.json['open_id']
     action = request.json['action'].get('value', {}).get("state", "")
@@ -185,20 +184,20 @@ def update_passenger():
     user = Passenger(user_id, name)
     app.logger.error(f"User: {user.user_name}, user_id: {user.open_id}, action: {action}")
 
-    msg_ids = running[0].msg_ids.items()
-    if action != "cancel":
-        if action == "on":
-            running[0].update_passenger(user)
-        elif action == "off":
-            running[0].remove_passenger(user)
+    msg_ids = rail.train.msg_ids.items()
+
+    if action in ["on", "off"]:
+        rail.train.update_passengers(action=action, passenger=user)
+
         msg = ONBOARD_MESSAGE(
-            issuer=running[0].issuer.user_name,
-            place=running[0].destination,
-            time=running[0].launch_time.strftime('%H:%M'),
-            user_names=[passenger.user_name for passenger in running[0].passengers], is_str=False
+            issuer=rail.train.issuer.user_name,
+            place=rail.train.destination,
+            time=rail.train.launch_time.strftime('%H:%M'),
+            user_names=[passenger.user_name for passenger in rail.train.passengers], is_str=False
         )
+
     elif action == "cancel":
-        if user.open_id != running[0].issuer.open_id:
+        if user.open_id != rail.train.issuer.open_id:
             message_api_client.send_text_with_open_id(
                 user.open_id,
                 message="Only the issuer can cancel the train"
@@ -206,21 +205,21 @@ def update_passenger():
             return "Invalid action", 400
 
         msg = CANCEL_MESSAGE(
-            place=running[0].destination,
-            time=running[0].launch_time.strftime('%H:%M'),
+            place=rail.train.destination,
+            time=rail.train.launch_time.strftime('%H:%M'),
             is_str=False
         )
-        running[0].clear_train()
+        rail.train.clear_train()
     else:
         return "Invalid action", 400
 
     app.logger.error(msg)
 
-    for user_id, msg_id in msg_ids:
-        message_api_client.update_message(
-            msg_id,
-            json.dumps(msg)
-        )
+    responses = message_api_client.bulk_update_message(
+        msg_ids,
+        json.dumps(msg)
+    )
+    app.logger.error(responses)
 
     return jsonify(msg)
 

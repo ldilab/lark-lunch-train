@@ -11,8 +11,9 @@ class UserApiClient(AuthenticationApiClient):
         super().__init__(*args, **kwargs)
         self.filter_ids = os.getenv("FILTER_IDS", "").split(",")
         self.logger.error(f"Filter IDs: {self.filter_ids}")
+        self.department_id = str(os.getenv("DEPARTMENT_ID"))
 
-    def get_department_user_ids(self, department_id: str):
+    def get_department_user_ids(self):
         self._authorize_tenant_access_token()
         url = self._lark_host / "open-apis" / "contact" / "v3" / "department" / "user" / "list"
         headers = {
@@ -20,7 +21,7 @@ class UserApiClient(AuthenticationApiClient):
             "Authorization": "Bearer " + self.tenant_access_token,
         }
         req_body = {
-            "department_id": department_id,
+            "department_id": self.department_id,
         }
         resp = self._post_request(
             url,
