@@ -1,7 +1,7 @@
 import logging
 from typing import Dict, List, Union
 
-import requests
+import grequests
 from furl import furl
 
 from src.lark.api.exception import LarkException
@@ -22,8 +22,11 @@ class BaseApiClient:
             headers: Dict[str, str],
             body: Dict[str, str],
     ):
-        resp = requests.post(url, headers=headers, json=body)
-        return self._check_error_response(resp)
+        return self._bulk_post_request([{
+            "url": url,
+            "headers": headers,
+            "body": body
+        }])[0]
 
     def _patch_request(
             self,
@@ -31,48 +34,51 @@ class BaseApiClient:
             headers: Dict[str, str],
             body: Dict[str, str],
     ):
-        resp = requests.patch(url, headers=headers, json=body)
-        return self._check_error_response(resp)
+        return self._bulk_patch_request([{
+            "url": url,
+            "headers": headers,
+            "body": body
+        }])[0]
 
     def _get_request(
             self,
             url: str,
             headers: Dict[str, str],
     ):
-        response = requests.get(url, headers=headers)
+        request_object = grequests.get(url, headers=headers)
+        response = grequests.map([request_object])[0]
+
         return self._check_error_response(response)
 
     def _bulk_post_request(
             self,
             request_targets: List[Dict[str, Union[str, Dict[str, str]]]],
     ):
-        responses = []
-        for target in request_targets:
-            if "url" not in target:
-                raise ValueError("URL is required in request target")
-            url = target.get("url")
-            headers = target.get("headers", {})
-            body = target.get("body", {})
-            response = self._post_request(url, headers, body)
-            responses.append(self._check_error_response(response))
-
-        return responses
+        request_objects = [
+            grequests.post(target["url"], headers=target["headers"], json=target["body"])
+            for target in request_targets
+        ]
+        responses = grequests.map(request_objects)
+        error_checked_responses = [
+            self._check_error_response(response)
+            for response in responses
+        ]
+        return error_checked_responses
 
     def _bulk_patch_request(
             self,
             request_targets: List[Dict[str, Union[str, Dict[str, str]]]],
     ):
-        responses = []
-        for target in request_targets:
-            if "url" not in target:
-                raise ValueError("URL is required in request target")
-            url = target.get("url")
-            headers = target.get("headers", {})
-            body = target.get("body", {})
-            response = self._patch_request(url, headers, body)
-            responses.append(self._check_error_response(response))
-
-        return responses
+        request_objects = [
+            grequests.patch(target["url"], headers=target["headers"], json=target["body"])
+            for target in request_targets
+        ]
+        responses = grequests.map(request_objects)
+        error_checked_responses = [
+            self._check_error_response(response)
+            for response in responses
+        ]
+        return error_checked_responses
 
     @staticmethod
     def _check_error_response(resp):

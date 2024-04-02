@@ -61,35 +61,37 @@ class Train:
         self.msg_ids = dict(zip(user_ids, msg_ids))
         self.logger.error(f"onboarding msgs:\n-> {self.msg_ids}")
 
-    def update_passengers(self, action: str, passenger: Passenger) -> None:
+    def update_passengers(self, action: str, passenger: Passenger) -> bool:
         """
         This method will be called to update the passengers list
         :return:
         """
         if action == "on":
-            self.add_passenger(passenger)
+            return self.add_passenger(passenger)
         elif action == "off":
-            self.pop_passenger(passenger)
+            return self.pop_passenger(passenger)
 
-    def add_passenger(self, passenger: Passenger) -> None:
+    def add_passenger(self, passenger: Passenger) -> bool:
         if passenger.open_id in [p.open_id for p in self.passengers]:
             self.logger.error(f"[ALREADY IN] [Passenger {passenger.user_name}]")
-            return
+            return False
 
         self.passengers.append(passenger)
         self.logger.error(f"[ADDED] [Passenger {passenger.user_name}]")
+        return True
 
-    def pop_passenger(self, passenger: Passenger) -> None:
+    def pop_passenger(self, passenger: Passenger) -> bool:
         """
         This method will be called to remove the passenger from the list
         :return:
         """
         if passenger.open_id not in [p.open_id for p in self.passengers]:
             self.logger.error(f"[NOT IN] [Passenger {passenger.user_name}]")
-            return
+            return False
 
         self.passengers.remove(passenger)
         self.logger.error(f"[REMOVED] [Passenger {passenger.user_name}]")
+        return True
 
     def reminder_notification(self) -> None:
         """
