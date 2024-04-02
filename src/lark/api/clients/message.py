@@ -12,12 +12,14 @@ class MessageApiClient(AuthenticationApiClient):
     # ============= SEND ============= #
     @staticmethod
     def _build_send_objects(
-            url: furl,
+            urls: Union[furl, List[furl]],
             receive_id_type: ReceiveIdType,
             bodies: List[Dict[str, Union[str, Dict[str, str]]]]
     ) -> List[Dict[str, Union[str, Dict[str, str]]]]:
         objects = []
-        for body in bodies:
+        if not isinstance(urls, list):
+            urls = [urls] * len(bodies)
+        for url, body in zip(urls, bodies):
             url.args["receive_id_type"] = receive_id_type.value
             objects.append({
                 "url": url,
@@ -48,7 +50,7 @@ class MessageApiClient(AuthenticationApiClient):
     # ************* BULK SEND ************* #
     def bulk_send(self, receive_id_type: ReceiveIdType, receive_ids, msg_type: MessageType, content):
         send_objects = self._build_send_objects(
-            url=self._lark_host / MESSAGE_URI,
+            urls=self._lark_host / MESSAGE_URI,
             receive_id_type=receive_id_type,
             bodies=[{
                 "receive_id": receive_id,
@@ -86,7 +88,7 @@ class MessageApiClient(AuthenticationApiClient):
 
     def bulk_buzz_message_with_open_ids(self, message_ids, user_ids):
         buzz_objects = self._build_send_objects(
-            url=self._lark_host / BATCH_MESSAGE_URI / "urgent_app",
+            urls=self._lark_host / BATCH_MESSAGE_URI / "urgent_app",
             receive_id_type=ReceiveIdType.OPEN_ID,
             bodies=[{
                 "message_id": message_id,
@@ -108,7 +110,10 @@ class MessageApiClient(AuthenticationApiClient):
 
     def bulk_update_message(self, message_ids, content):
         update_objects = self._build_send_objects(
-            url=self._lark_host / BATCH_MESSAGE_URI,
+            urls=[
+                self._lark_host / MESSAGE_URI / message_id
+                for message_id in message_ids
+            ],
             receive_id_type=ReceiveIdType.OPEN_ID,
             bodies=[{
                 "message_id": message_id,
