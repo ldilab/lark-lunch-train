@@ -47,7 +47,7 @@ class BaseApiClient:
     ):
         request_object = grequests.get(url, headers=headers)
         response = grequests.map([request_object])[0]
-        self.logger.error("GET request response: %s", response.json())
+        self.logger.error("GET request response: %s", response)
 
         return self._check_error_response(response)
 

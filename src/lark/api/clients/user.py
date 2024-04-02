@@ -20,7 +20,7 @@ class UserApiClient(AuthenticationApiClient):
             headers=self._get_auth_headers(),
             body=req_body
         )
-        department_user_ids = resp.json().get("data", {}).get("user_ids", [])
+        department_user_ids = resp.get("data", {}).get("user_ids", [])
 
         if self.filter_ids:
             department_user_ids = [d for d in department_user_ids if d not in self.filter_ids]
@@ -33,5 +33,5 @@ class UserApiClient(AuthenticationApiClient):
             url,
             headers=self._get_auth_headers()
         )
-        data = response.json().get("data", {}).get("user", {})
+        data = response.get("data", {}).get("user", {})
         return data

@@ -20,8 +20,8 @@ class AuthenticationApiClient(BaseApiClient):
             headers={"Content-Type": "application/json"},
             body=req_body
         )
-        self._tenant_access_token = response.json().get("tenant_access_token")
-        self._tenant_access_token_expires = response.json().get("expire")
+        self._tenant_access_token = response.get("tenant_access_token")
+        self._tenant_access_token_expires = response.get("expire")
         self._tenant_access_refresh_time = datetime.now() + timedelta(seconds=self._tenant_access_token_expires - 5)
         self.logger.error(f"(RENEWED) tenant_access_token: {self._tenant_access_token}")
 

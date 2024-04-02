@@ -26,21 +26,7 @@ class MessageApiClient(AuthenticationApiClient):
         return objects
 
     def _send(self, receive_id_type: ReceiveIdType, receive_id, msg_type: MessageType, content):
-        send_objects = self._build_send_objects(
-            url=self._lark_host / MESSAGE_URI,
-            receive_id_type=receive_id_type,
-            bodies=[{
-                "receive_id": receive_id,
-                "msg_type": msg_type.value,
-                "content": content
-            }]
-        )
-        send_objects = [{
-            **send_object,
-            "headers": self._get_auth_headers()
-        } for send_object in send_objects]
-
-        responses = self._bulk_post_request(send_objects)
+        responses = self.bulk_send(receive_id_type, [receive_id], msg_type, content)
         assert len(responses) == 1
         return responses[0]
 
@@ -70,6 +56,11 @@ class MessageApiClient(AuthenticationApiClient):
                 "content": content
             } for receive_id in receive_ids]
         )
+        send_objects = [{
+            **send_object,
+            "headers": self._get_auth_headers()
+        } for send_object in send_objects]
+
         return self._bulk_post_request(send_objects)
 
     def bulk_send_with_open_ids(self, open_ids, msg_type: MessageType, content):
@@ -89,20 +80,7 @@ class MessageApiClient(AuthenticationApiClient):
 
     # ============= BUZZ ============= #
     def buzz_message_with_open_id(self, message_id, user_ids):
-        self._authorize_tenant_access_token()
-        buzz_objects = self._build_send_objects(
-            url=self._lark_host / MESSAGE_URI / message_id / "urgent_app",
-            receive_id_type=ReceiveIdType.OPEN_ID,
-            bodies=[{
-                "user_id_list": user_ids
-            }]
-        )
-        buzz_objects = [{
-            **send_object,
-            "headers": self._get_auth_headers()
-        } for send_object in buzz_objects]
-
-        responses = self._bulk_post_request(buzz_objects)
+        responses = self.bulk_buzz_message_with_open_ids([message_id], user_ids)
         assert len(responses) == 1
         return responses[0]
 
@@ -115,25 +93,16 @@ class MessageApiClient(AuthenticationApiClient):
                 "user_id_list": [user_id]
             } for message_id, user_id in zip(message_ids, user_ids)]
         )
+        buzz_objects = [{
+            **send_object,
+            "headers": self._get_auth_headers()
+        } for send_object in buzz_objects]
+
         return self._bulk_post_request(buzz_objects)
 
     # ============= UPDATE ============= #
     def update_message(self, message_id, content):
-        self._authorize_tenant_access_token()
-
-        update_objects = self._build_send_objects(
-            url=self._lark_host / MESSAGE_URI / message_id,
-            receive_id_type=ReceiveIdType.OPEN_ID,
-            bodies=[{
-                "content": content
-            }]
-        )
-        update_objects = [{
-            **send_object,
-            "headers": self._get_auth_headers()
-        } for send_object in update_objects]
-
-        responses = self._bulk_patch_request(update_objects)
+        responses = self.bulk_update_message([message_id], content)
         assert len(responses) == 1
         return responses[0]
 
@@ -146,4 +115,8 @@ class MessageApiClient(AuthenticationApiClient):
                 "content": content
             } for message_id in message_ids]
         )
+        update_objects = [{
+            **send_object,
+            "headers": self._get_auth_headers()
+        } for send_object in update_objects]
         return self._bulk_patch_request(update_objects)
