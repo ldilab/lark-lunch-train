@@ -10,11 +10,10 @@ from src.lark.utils.dtypes import MessageType, ReceiveIdType
 
 class MessageApiClient(AuthenticationApiClient):
     # ============= SEND ============= #
-
+    @staticmethod
     def _build_send_objects(
-            self,
             urls: Union[furl, List[furl]],
-            bodies: List[Dict[str, Union[str, Dict[str, str]]]],
+            bodies: List[Dict[str, any]],
             receive_id_type: Union[None, ReceiveIdType] = None,
     ) -> List[Dict[str, Union[str, Dict[str, str]]]]:
         objects = []
@@ -92,12 +91,14 @@ class MessageApiClient(AuthenticationApiClient):
 
     def bulk_buzz_message_with_open_ids(self, message_ids, user_ids):
         buzz_objects = self._build_send_objects(
-            urls=self._lark_host / MESSAGE_URI / "urgent_app",
+            urls=[
+                self._lark_host / MESSAGE_URI / message_id / "urgent_app"
+                for message_id in message_ids
+            ],
             receive_id_type=ReceiveIdType.OPEN_ID,
             bodies=[{
-                "message_id": message_id,
                 "user_id_list": [user_id]
-            } for message_id, user_id in zip(message_ids, user_ids)]
+            } for user_id in user_ids]
         )
         buzz_objects = [{
             **send_object,
