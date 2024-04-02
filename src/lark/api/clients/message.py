@@ -19,6 +19,7 @@ class MessageApiClient(AuthenticationApiClient):
         objects = []
         if not isinstance(urls, list):
             urls = [urls] * len(bodies)
+
         for url, body in zip(urls, bodies):
             if receive_id_type:
                 url.args["receive_id_type"] = receive_id_type.value
@@ -116,7 +117,6 @@ class MessageApiClient(AuthenticationApiClient):
                 for message_id in message_ids
             ],
             bodies=[{
-                "message_id": message_id,
                 "content": content
             } for message_id in message_ids]
         )
