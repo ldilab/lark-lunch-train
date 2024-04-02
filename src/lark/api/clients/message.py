@@ -110,7 +110,7 @@ class MessageApiClient(AuthenticationApiClient):
             "headers": self._get_auth_headers()
         } for send_object in buzz_objects]
 
-        return self._bulk_post_request(buzz_objects)
+        return self._bulk_patch_request(buzz_objects)
 
     # ============= UPDATE ============= #
     def update_message(self, message_id, content):
