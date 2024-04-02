@@ -11,18 +11,13 @@ class UserApiClient(AuthenticationApiClient):
         self.department_id = str(os.getenv("DEPARTMENT_ID"))
 
     def get_department_user_ids(self):
-        self._authorize_tenant_access_token()
         url = self._lark_host / "open-apis" / "contact" / "v3" / "department" / "user" / "list"
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + self.tenant_access_token,
-        }
         req_body = {
             "department_id": self.department_id,
         }
         resp = self._post_request(
             url,
-            headers=headers,
+            headers=self._get_auth_headers(),
             body=req_body
         )
         department_user_ids = resp.json().get("data", {}).get("user_ids", [])
@@ -33,15 +28,10 @@ class UserApiClient(AuthenticationApiClient):
         self.logger.error(f"Department User IDs: {department_user_ids}")
         return department_user_ids
     def get_user_info(self, open_id):
-        self._authorize_tenant_access_token()
         url = self._lark_host / "open-apis" / "contact" / "v3" / "users" / open_id
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + self.tenant_access_token,
-        }
         response = self._get_request(
             url,
-            headers=headers
+            headers=self._get_auth_headers()
         )
         data = response.json().get("data", {}).get("user", {})
         return data

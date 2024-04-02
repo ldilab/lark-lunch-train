@@ -15,7 +15,11 @@ class AuthenticationApiClient(BaseApiClient):
             return
         url = self._lark_host / TENANT_ACCESS_TOKEN_URI
         req_body = {"app_id": self._app_id, "app_secret": self._app_secret}
-        response = self._post_request(url, req_body)
+        response = self._post_request(
+            url,
+            headers={"Content-Type": "application/json"},
+            body=req_body
+        )
         self._check_error_response(response)
         self._tenant_access_token = response.json().get("tenant_access_token")
         self._tenant_access_token_expires = response.json().get("expire")
