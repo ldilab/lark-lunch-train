@@ -88,7 +88,7 @@ class BaseApiClient:
     @staticmethod
     def _check_error_response(resp):
         # check if the response contains error information
-        if resp.status_code != 200:
+        if resp["status_code"] != 200:
             resp.raise_for_status()
         response_dict = resp.json()
         code = response_dict.get("code", -1)
