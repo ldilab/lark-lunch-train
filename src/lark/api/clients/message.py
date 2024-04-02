@@ -64,19 +64,19 @@ class MessageApiClient(AuthenticationApiClient):
         return self._bulk_post_request(send_objects)
 
     def bulk_send_with_open_ids(self, open_ids, msg_type: MessageType, content):
-        self.bulk_send(ReceiveIdType.OPEN_ID, open_ids, msg_type, content)
+        return self.bulk_send(ReceiveIdType.OPEN_ID, open_ids, msg_type, content)
 
     def bulk_send_text(self, receive_id_type, receive_ids, message):
-        self.bulk_send(receive_id_type, receive_ids, MessageType.TEXT, {"text": message})
+        return self.bulk_send(receive_id_type, receive_ids, MessageType.TEXT, {"text": message})
 
     def bulk_send_text_with_open_ids(self, open_ids, message):
-        self.bulk_send_with_open_ids(open_ids, MessageType.TEXT, {"text": message})
+        return self.bulk_send_with_open_ids(open_ids, MessageType.TEXT, {"text": message})
 
     def bulk_send_card(self, receive_id_type, receive_ids, card_content: Dict[str, str]):
-        self.bulk_send(receive_id_type, receive_ids, MessageType.INTERACTIVE, card_content)
+        return self.bulk_send(receive_id_type, receive_ids, MessageType.INTERACTIVE, card_content)
 
     def bulk_send_card_with_open_ids(self, open_ids, card_content: Dict[str, str]):
-        self.bulk_send_with_open_ids(open_ids, MessageType.INTERACTIVE, card_content)
+        return self.bulk_send_with_open_ids(open_ids, MessageType.INTERACTIVE, card_content)
 
     # ============= BUZZ ============= #
     def buzz_message_with_open_id(self, message_id, user_ids):
