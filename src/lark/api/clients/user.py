@@ -18,6 +18,9 @@ class UserApiClient(AuthenticationApiClient):
             url,
             headers=self._get_auth_headers(),
         )
+        self.logger.error(f"Department User IDs Response: {resp}")
+        self.logger.error(resp.get("data", {}))
+        self.logger.error(resp.get("user_ids", []))
         department_user_ids = resp.get("data", {}).get("user_ids", [])
 
         if self.filter_ids:
