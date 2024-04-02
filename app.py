@@ -113,7 +113,7 @@ def issue_train(p, t, issuer: Passenger):
     if rail.is_rail_full():
         message_api_client.send_text_with_open_id(
             issuer.open_id,
-            message=f"There is already a train running. "
+            message=f"There is a train already running. "
                     f"(Train: [to] {rail.train.destination} [at] {rail.train.launch_time.strftime('%H:%M')})"
         )
         return "Too many trains running", 400

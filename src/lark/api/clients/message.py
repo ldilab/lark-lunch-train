@@ -3,15 +3,16 @@ from typing import List, Dict, Union
 
 from furl import furl
 
-from src.lark.api import BATCH_MESSAGE_URI, MESSAGE_URI
+from src.lark.api import MESSAGE_URI
 from src.lark.api.clients.auth import AuthenticationApiClient
 from src.lark.utils.dtypes import MessageType, ReceiveIdType
 
 
 class MessageApiClient(AuthenticationApiClient):
     # ============= SEND ============= #
-    @staticmethod
+
     def _build_send_objects(
+            self,
             urls: Union[furl, List[furl]],
             bodies: List[Dict[str, Union[str, Dict[str, str]]]],
             receive_id_type: Union[None, ReceiveIdType] = None,
@@ -20,9 +21,12 @@ class MessageApiClient(AuthenticationApiClient):
         if not isinstance(urls, list):
             urls = [urls] * len(bodies)
 
+        self.logger.error(urls)
+
         for url, body in zip(urls, bodies):
             if receive_id_type:
                 url.args["receive_id_type"] = receive_id_type.value
+
             objects.append({
                 "url": url,
                 "body": body
@@ -90,7 +94,7 @@ class MessageApiClient(AuthenticationApiClient):
 
     def bulk_buzz_message_with_open_ids(self, message_ids, user_ids):
         buzz_objects = self._build_send_objects(
-            urls=self._lark_host / BATCH_MESSAGE_URI / "urgent_app",
+            urls=self._lark_host / MESSAGE_URI / "urgent_app",
             receive_id_type=ReceiveIdType.OPEN_ID,
             bodies=[{
                 "message_id": message_id,
