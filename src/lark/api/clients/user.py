@@ -1,7 +1,4 @@
 import os
-from typing import List
-
-import requests
 
 from src.lark.api.clients.auth import AuthenticationApiClient
 

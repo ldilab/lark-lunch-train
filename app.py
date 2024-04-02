@@ -1,22 +1,17 @@
 import ast
 import json
 import os
-import time
 from datetime import datetime, timedelta
 from os.path import join, dirname
-from typing import Tuple
 
-import flask
 import pytz
-import tzlocal
 from apscheduler.executors.pool import ProcessPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
 from dotenv import load_dotenv
 from flask import Flask, jsonify
 from flask import request
-from flask_httpauth import HTTPBasicAuth
-
 from flask_apscheduler import APScheduler
+from flask_httpauth import HTTPBasicAuth
 
 from src import rail
 from src.keyword import detect

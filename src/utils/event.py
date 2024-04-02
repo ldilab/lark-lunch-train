@@ -1,10 +1,10 @@
 
-import json
 import abc
 import hashlib
+import json
 import typing as t
 
-from flask import request, jsonify
+from flask import request
 
 from src.lark.utils.decrypt import AESCipher
 from src.lark.utils.utils import dict_2_obj

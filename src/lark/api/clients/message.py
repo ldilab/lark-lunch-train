@@ -1,8 +1,6 @@
 import json
-from datetime import datetime
 from typing import List, Dict, Union
 
-import requests
 from furl import furl
 
 from src.lark.api import BATCH_MESSAGE_URI, MESSAGE_URI

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.8
-import hashlib
 import base64
+import hashlib
 
 from Crypto.Cipher import AES
 

@@ -1,4 +1,4 @@
-from typing import Union, Tuple
+from typing import Union
 
 
 def detect(s: str) -> Union[None, str, tuple[str, str]]:

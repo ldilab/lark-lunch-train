@@ -2,8 +2,7 @@ import datetime
 import os
 from dataclasses import dataclass
 from datetime import time
-from enum import Enum
-from typing import List, Union
+from typing import List
 
 from src import rail
 from src.lark.api.client import LarkClient
