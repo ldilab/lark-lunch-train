@@ -179,7 +179,7 @@ def update_passenger():
     user = Passenger(user_id, name)
     app.logger.error(f"User: {user.user_name}, user_id: {user.open_id}, action: {action}")
 
-    msg_ids = rail.train.msg_ids.items()
+    msg_ids = rail.train.msg_ids.values()
 
     if action in ["on", "off"]:
         updated_status = rail.train.update_passengers(action=action, passenger=user)
