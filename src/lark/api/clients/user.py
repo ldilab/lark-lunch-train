@@ -11,7 +11,7 @@ class UserApiClient(AuthenticationApiClient):
         self.department_id = str(os.getenv("DEPARTMENT_ID"))
 
     def get_department_user_ids(self):
-        url = self._lark_host / "open-apis" / "contact" / "v3" / "department" / "user" / "list"
+        url = self._lark_host / "open-apis" / "contact" / "v3" / "users" / "find_by_department"
         url.args["department_id"] = self.department_id
         resp = self._get_request(
             url,
