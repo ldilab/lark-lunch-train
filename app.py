@@ -187,7 +187,19 @@ def update_passenger():
     msg_ids = rail.train.msg_ids.items()
 
     if action in ["on", "off"]:
-        rail.train.update_passengers(action=action, passenger=user)
+        updated_status = rail.train.update_passengers(action=action, passenger=user)
+        if not updated_status and action == "on":
+            message_api_client.send_text_with_open_id(
+                user.open_id,
+                message="You are not on the train"
+            )
+            return "Invalid action", 400
+        elif not updated_status and action == "off":
+            message_api_client.send_text_with_open_id(
+                user.open_id,
+                message="You are not on the train"
+            )
+            return "Invalid action", 400
 
         msg = ONBOARD_MESSAGE(
             issuer=rail.train.issuer.user_name,
