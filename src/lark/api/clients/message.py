@@ -13,14 +13,15 @@ class MessageApiClient(AuthenticationApiClient):
     @staticmethod
     def _build_send_objects(
             urls: Union[furl, List[furl]],
-            receive_id_type: ReceiveIdType,
-            bodies: List[Dict[str, Union[str, Dict[str, str]]]]
+            bodies: List[Dict[str, Union[str, Dict[str, str]]]],
+            receive_id_type: Union[None, ReceiveIdType] = None,
     ) -> List[Dict[str, Union[str, Dict[str, str]]]]:
         objects = []
         if not isinstance(urls, list):
             urls = [urls] * len(bodies)
         for url, body in zip(urls, bodies):
-            url.args["receive_id_type"] = receive_id_type.value
+            if receive_id_type:
+                url.args["receive_id_type"] = receive_id_type.value
             objects.append({
                 "url": url,
                 "body": body
@@ -114,7 +115,6 @@ class MessageApiClient(AuthenticationApiClient):
                 self._lark_host / MESSAGE_URI / message_id
                 for message_id in message_ids
             ],
-            receive_id_type=ReceiveIdType.OPEN_ID,
             bodies=[{
                 "message_id": message_id,
                 "content": content
