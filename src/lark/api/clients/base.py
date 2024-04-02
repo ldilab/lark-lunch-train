@@ -47,6 +47,7 @@ class BaseApiClient:
     ):
         request_object = grequests.get(url, headers=headers)
         response = grequests.map([request_object])[0]
+        self.logger.error("GET request response: %s", response.json())
 
         return self._check_error_response(response)
 
@@ -59,6 +60,8 @@ class BaseApiClient:
             for target in request_targets
         ]
         responses = grequests.map(request_objects)
+        self.logger.error("POST request responses: %s", responses)
+
         error_checked_responses = [
             self._check_error_response(response)
             for response in responses
@@ -74,6 +77,8 @@ class BaseApiClient:
             for target in request_targets
         ]
         responses = grequests.map(request_objects)
+        self.logger.error("PATCH request responses: %s", responses)
+
         error_checked_responses = [
             self._check_error_response(response)
             for response in responses
