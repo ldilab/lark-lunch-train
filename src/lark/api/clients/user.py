@@ -9,6 +9,7 @@ class UserApiClient(AuthenticationApiClient):
         self.filter_ids = os.getenv("FILTER_IDS", "").split(",")
         self.logger.error(f"Filter IDs: {self.filter_ids}")
         self.department_id = str(os.getenv("DEPARTMENT_ID"))
+        self.logger.error(f"Department ID: {self.department_id}")
 
     def get_department_user_ids(self):
         url = self._lark_host / "open-apis" / "contact" / "v3" / "users" / "find_by_department"
